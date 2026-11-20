@@ -47,7 +47,7 @@ export async function captcha() {
 
 export async function me({ session }) {
   const user = await users.getUserById(session._id).catch(() => null);
-  if (!user || user.status !== 'active') {
+  if (!user || user.status !== 'active' || (session.sv || 0) !== (user.sessionVersion || 0)) {
     const response = NextResponse.json({ success: false, message: 'Session expired.' }, { status: 401 });
     clearSessionCookie(response);
     return response;
@@ -61,8 +61,11 @@ export async function logout() {
   return response;
 }
 
+// Changing the password signs out every other device; this browser gets a fresh session
 export async function changePassword({ req, session }) {
   const { currentPassword, newPassword } = await readJson(req);
-  await users.changePassword(session._id, currentPassword, newPassword);
-  return ok(undefined, 'Password updated.');
+  const user = await users.changePassword(session._id, currentPassword, newPassword);
+  const response = ok(undefined, 'Password updated. Other devices have been signed out.');
+  setSessionCookie(response, createSessionToken(user));
+  return response;
 }

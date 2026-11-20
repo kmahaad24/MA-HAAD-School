@@ -4,6 +4,9 @@ import Image from 'next/image';
 import { FaChevronLeft, FaChevronRight, FaSearchPlus } from 'react-icons/fa';
 import { HiX } from 'react-icons/hi';
 import { cn } from '@/lib/utils';
+import { SHIMMER } from '@/lib/image';
+
+const PAGE = 12;
 
 function Lightbox({ items, index, onClose, onMove }) {
   const item = items[index];
@@ -27,7 +30,7 @@ function Lightbox({ items, index, onClose, onMove }) {
       <button type="button" className="absolute inset-0 cursor-zoom-out" onClick={onClose} aria-label="Close" />
       <figure className="relative z-10 flex max-h-full w-full max-w-5xl flex-col items-center">
         <div className="relative h-[70vh] w-full">
-          <Image src={item.src} alt={item.title} fill sizes="(min-width: 1024px) 1024px, 100vw" className="object-contain" />
+          <Image src={item.src} alt={item.title} fill sizes="(min-width: 1024px) 1024px, 100vw" placeholder={SHIMMER} className="object-contain" />
         </div>
         <figcaption className="mt-4 text-center text-white">
           <span className="font-display text-lg">{item.title}</span>
@@ -52,15 +55,15 @@ function Lightbox({ items, index, onClose, onMove }) {
   );
 }
 
-// Photo grid with category filter and a full-screen viewer
+// Photo grid with category filter and a full-screen viewer. Shows 12 photos at a time ("Show more")
+// so phones on slow internet don't download the whole gallery at once.
 export default function GalleryGrid({ items, categories = [], limit }) {
   const [category, setCategory] = useState('All');
   const [open, setOpen] = useState(null);
+  const [visible, setVisible] = useState(PAGE);
 
-  const shown = useMemo(() => {
-    const list = category === 'All' ? items : items.filter((i) => i.category === category);
-    return limit ? list.slice(0, limit) : list;
-  }, [items, category, limit]);
+  const filtered = useMemo(() => (category === 'All' ? items : items.filter((i) => i.category === category)), [items, category]);
+  const shown = useMemo(() => filtered.slice(0, limit || visible), [filtered, limit, visible]);
 
   const close = useCallback(() => setOpen(null), []);
   const move = useCallback((step) => setOpen((i) => (i === null ? i : (i + step + shown.length) % shown.length)), [shown.length]);
@@ -74,7 +77,10 @@ export default function GalleryGrid({ items, categories = [], limit }) {
               key={c}
               type="button"
               aria-pressed={category === c}
-              onClick={() => setCategory(c)}
+              onClick={() => {
+                setCategory(c);
+                setVisible(PAGE);
+              }}
               className={cn(
                 'rounded-full px-4 py-2 text-sm font-medium transition',
                 category === c ? 'bg-navy-900 text-white shadow-md' : 'border border-slate-200 bg-white text-slate-600 hover:border-brand-300 hover:text-brand-700'
@@ -99,7 +105,9 @@ export default function GalleryGrid({ items, categories = [], limit }) {
                 src={item.src}
                 alt={item.title || 'School photo'}
                 fill
-                sizes="(min-width: 768px) 33vw, 50vw"
+                sizes={i % 7 === 0 ? '(min-width: 768px) 66vw, 100vw' : '(min-width: 768px) 33vw, 50vw'}
+                quality={60}
+                placeholder={SHIMMER}
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-navy-950/60 p-3 text-center text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
@@ -111,6 +119,18 @@ export default function GalleryGrid({ items, categories = [], limit }) {
           </li>
         ))}
       </ul>
+
+      {!limit && filtered.length > shown.length && (
+        <div className="mt-10 text-center">
+          <button
+            type="button"
+            onClick={() => setVisible((v) => v + PAGE)}
+            className="rounded-full border border-brand-300 bg-white px-6 py-3 text-sm font-semibold text-brand-700 transition hover:bg-brand-50 active:scale-[0.98]"
+          >
+            Show more photos ({filtered.length - shown.length} more)
+          </button>
+        </div>
+      )}
 
       {open !== null && shown[open] && <Lightbox items={shown} index={open} onClose={close} onMove={move} />}
     </>

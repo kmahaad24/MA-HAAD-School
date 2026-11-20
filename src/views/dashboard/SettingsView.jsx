@@ -1,16 +1,15 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { FaClock, FaPalette, FaLock } from 'react-icons/fa';
+import { FaClock } from 'react-icons/fa';
 import useApi from '@/hooks/useApi';
 import { apiSecure, apiError } from '@/lib/api-client';
 import { DEFAULT_TIME_ZONE, offsetLabel, setTimeZone } from '@/lib/timezone';
 import PageTitle from '@/components/dashboard/PageTitle';
-import ThemeToggle from '@/components/layout/ThemeToggle';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Alert from '@/components/ui/Alert';
-import { Input } from '@/components/forms/FormField';
 import { FormSkeleton } from '@/components/loading/PageSkeletons';
+import EmailSettings from './EmailSettings';
 
 const PINNED_ZONES = ['Asia/Dhaka', 'Asia/Kolkata', 'Asia/Dubai', 'Asia/Singapore', 'Europe/London', 'America/New_York', 'UTC'];
 
@@ -114,61 +113,15 @@ function TimezoneSettings() {
   );
 }
 
-const EMPTY_PASSWORDS = { currentPassword: '', newPassword: '', confirm: '' };
-
-function PasswordSettings() {
-  const [form, setForm] = useState(EMPTY_PASSWORDS);
-  const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState({ type: '', message: '' });
-  const update = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-
-  const save = async (e) => {
-    e.preventDefault();
-    if (form.newPassword !== form.confirm) {
-      setStatus({ type: 'error', message: 'The new passwords do not match.' });
-      return;
-    }
-    setSaving(true);
-    setStatus({ type: '', message: '' });
-    try {
-      const res = await apiSecure.put('/auth/password', { currentPassword: form.currentPassword, newPassword: form.newPassword });
-      setForm(EMPTY_PASSWORDS);
-      setStatus({ type: 'success', message: res.data?.message || 'Password updated.' });
-    } catch (err) {
-      setStatus({ type: 'error', message: apiError(err, 'Could not change the password.') });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <Section icon={FaLock} title="Password" description="Change the password you use to sign in.">
-      <form onSubmit={save} className="space-y-4">
-        <Input label="Current password" name="currentPassword" type="password" autoComplete="current-password" value={form.currentPassword} onChange={update} required />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Input label="New password" name="newPassword" type="password" autoComplete="new-password" minLength={8} value={form.newPassword} onChange={update} required />
-          <Input label="Repeat new password" name="confirm" type="password" autoComplete="new-password" minLength={8} value={form.confirm} onChange={update} required />
-        </div>
-        <div className="flex flex-wrap items-center justify-end gap-3">
-          <Alert type={status.type || 'info'} className="mr-auto py-1.5">{status.message}</Alert>
-          <Button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Update password'}</Button>
-        </div>
-      </form>
-    </Section>
-  );
-}
-
 export default function SettingsView() {
   return (
     <>
-      <PageTitle title="Settings" description="Site-wide options for the website and dashboard." />
-      <div className="grid gap-6 xl:grid-cols-2">
-        <TimezoneSettings />
-        <PasswordSettings />
-        <Section icon={FaPalette} title="Appearance" description="Light, dark or follow the device. Saved in this browser for each visitor.">
-          <ThemeToggle variant="row" />
-          <p className="mt-3 text-xs text-subtle">Visitors switch the theme with the sun / moon button in the site header.</p>
-        </Section>
+      <PageTitle title="Settings" description="Site-wide options for the website and dashboard. Your password and theme are in My Profile." />
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <EmailSettings />
+        <div className="space-y-6">
+          <TimezoneSettings />
+        </div>
       </div>
     </>
   );

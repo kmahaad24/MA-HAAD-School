@@ -1,15 +1,9 @@
+'use client';
 import Link from 'next/link';
 import { FaBullhorn } from 'react-icons/fa';
-import { siteConfig } from '@/config/site';
+import { useSite } from '@/providers/SiteProvider';
 import { dateParts } from '@/lib/utils';
 import { isNew } from '@/lib/notices';
-
-// Shown when there are no notices yet (or the database is unreachable)
-const FALLBACK = [
-  { title: `Welcome to ${siteConfig.name} — ${siteConfig.tagline}`, href: '/about' },
-  { title: `For admission enquiries call ${siteConfig.contact.phones.join(' / ')} (${siteConfig.contact.callingTime})`, href: '/admission/information' },
-  { title: `${siteConfig.curriculum} · Play Group to Class X`, href: '/admission' },
-];
 
 function Item({ item, copy = false }) {
   const parts = item.date ? dateParts(item.date) : null;
@@ -27,11 +21,14 @@ function Item({ item, copy = false }) {
   );
 }
 
-// Scrolling notice bar under the menu. Pauses on hover / keyboard focus.
+// Scrolling notice bar under the menu. Pauses on hover / keyboard focus. While there are no notices
+// (or the database is unreachable) it shows the messages from Dashboard → Website Content → Shared blocks.
 export default function NoticeTicker({ notices = [] }) {
+  const { shared } = useSite();
   const items = notices.length
     ? notices.map((n) => ({ title: n.title, date: n.date, href: `/notices/${n._id}` }))
-    : FALLBACK;
+    : shared.ticker.map((title) => ({ title, href: '/notices' }));
+  if (!items.length) return null;
   // Longer content scrolls for longer so the speed stays readable
   const chars = items.reduce((sum, i) => sum + i.title.length, 0);
   const duration = Math.max(25, Math.round(chars / 5));

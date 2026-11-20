@@ -3,8 +3,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaUser, FaLock, FaEye, FaEyeSlash, FaSignInAlt, FaInfoCircle, FaExternalLinkAlt } from 'react-icons/fa';
-import { siteConfig } from '@/config/site';
-import { images } from '@/data/school';
+import { useSite } from '@/providers/SiteProvider';
+import { SHIMMER } from '@/lib/image';
 import { cn } from '@/lib/utils';
 
 const field =
@@ -12,10 +12,11 @@ const field =
 
 // Sign-in screen for a portal. If the portal has an online system (`portal.url`), the button
 // opens it; otherwise the visitor is told how to get access from the school office.
-export default function PortalLogin({ portal, group, siblings = [] }) {
+export default function PortalLogin({ portal, group, siblings = [], image }) {
   const [show, setShow] = useState(false);
   const [message, setMessage] = useState('');
-  const { contact } = siteConfig;
+  const { general } = useSite();
+  const { contact, identity, branding } = general;
 
   const submit = (e) => {
     e.preventDefault();
@@ -24,14 +25,14 @@ export default function PortalLogin({ portal, group, siblings = [] }) {
       return;
     }
     setMessage(
-      `Online sign-in for the ${portal.title} is being set up. Your login details will be provided by the school office — please call ${contact.phones[0]} (${contact.callingTime}).`
+      `Online sign-in for the ${portal.title} is being set up. Your login details will be provided by the school office — please call ${contact.phones[0] || contact.email}${contact.callingTime ? ` (${contact.callingTime})` : ''}.`
     );
   };
 
   return (
     <div className="mx-auto grid max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl shadow-navy-900/10 ring-1 ring-slate-200 lg:grid-cols-2">
       <div className="relative hidden min-h-[520px] lg:block">
-        <Image src={images.sportsTeam} alt="" fill sizes="50vw" className="object-cover" />
+        {image && <Image src={image} alt="" fill sizes="50vw" placeholder={SHIMMER} className="object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-900/80 to-brand-800/50" aria-hidden />
         <div className="absolute inset-x-0 bottom-0 p-8 text-white">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-gold-300">{group.title}</p>
@@ -54,7 +55,7 @@ export default function PortalLogin({ portal, group, siblings = [] }) {
       </div>
 
       <div className="p-6 sm:p-10">
-        <Image src={siteConfig.logo} alt={siteConfig.name} width={1200} height={370} className="h-12 w-auto" />
+        {branding.logo && <Image src={branding.logo} alt={identity.name} width={1200} height={370} className="h-12 w-auto" />}
         <h2 className="mt-8 font-display text-2xl text-navy-900 sm:text-3xl">Sign in</h2>
         <p className="mt-1 text-sm text-slate-500">
           {portal.title} · <span className="text-slate-600">{portal.audience}</span>
@@ -91,8 +92,8 @@ export default function PortalLogin({ portal, group, siblings = [] }) {
         </form>
 
         <p className="mt-6 text-center text-xs text-slate-500">
-          Forgot your password or need an account? Contact the school office at{' '}
-          <a href={`mailto:${contact.email}`} className="font-medium text-brand-600 hover:underline">{contact.email}</a>.
+          Forgot your password or need an account? Contact the school office{contact.email ? ' at ' : '.'}
+          {contact.email && <><a href={`mailto:${contact.email}`} className="font-medium text-brand-600 hover:underline">{contact.email}</a>.</>}
         </p>
       </div>
     </div>

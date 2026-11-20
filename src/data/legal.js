@@ -1,9 +1,9 @@
 // Text of the /legal pages. Each document: { title, summary, lastUpdated, sections: [{ id, heading, body: [paragraph | { list: [] }] }] }.
 // Inline **bold** and [links](/path) are supported. {{email}} / {{address}} come from src/config/site.js.
 // This is generic placeholder text — have it reviewed for your own business before publishing.
-import { siteConfig } from '@/config/site';
 
-const NAME = siteConfig.name;
+
+const NAME = '{{school}}';
 const UPDATED = '1 January 2026';
 
 const contactSection = {

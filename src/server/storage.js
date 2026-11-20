@@ -1,7 +1,8 @@
 // Uploaded images (gallery, staff photos, notice images …).
 // Files are saved under UPLOAD_DIR (default: <project>/uploads) and served by app/uploads/[...path]/route.js
-// at /uploads/<folder>/<file>. They are NOT put in /public, because a built Next.js site (e.g. on cPanel)
-// only serves the public files that existed at build time.
+// at /uploads/<folder>/<file>. They are NOT put in /public, because a built Next.js site (Hostinger, cPanel)
+// only serves the public files that existed at build time — and a redeploy replaces the app folder.
+// On Hostinger set UPLOAD_DIR to a folder OUTSIDE the app folder (see DEPLOY-HOSTINGER.md) so photos survive redeploys.
 import { randomBytes } from 'node:crypto';
 import { mkdir, writeFile, unlink } from 'node:fs/promises';
 import path from 'node:path';
@@ -12,7 +13,7 @@ export const UPLOAD_URL = '/uploads';
 export const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
 
 // Folders an upload may go into, with the longest side the image is shrunk to
-export const UPLOAD_FOLDERS = { gallery: 2000, staff: 800, leaders: 900, notices: 1600, misc: 1600 };
+export const UPLOAD_FOLDERS = { gallery: 2000, content: 2000, staff: 800, leaders: 900, notices: 1600, misc: 1600 };
 
 const TYPES = {
   'image/jpeg': { ext: 'jpg', magic: (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },

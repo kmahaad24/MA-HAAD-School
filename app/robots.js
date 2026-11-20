@@ -1,8 +1,9 @@
-import { siteConfig } from '@/config/site';
+import { siteUrl } from '@/lib/seo';
 
 export default function robots() {
   return {
-    rules: { userAgent: '*', allow: '/', disallow: ['/dashboard/', '/login', '/portal/', '/requisition/'] },
-    sitemap: `${siteConfig.url}/sitemap.xml`,
+    rules: { userAgent: '*', allow: '/', disallow: ['/dashboard', '/login', '/portal', '/requisition', '/api/'] },
+    sitemap: `${siteUrl()}/sitemap.xml`,
+    host: siteUrl(),
   };
 }

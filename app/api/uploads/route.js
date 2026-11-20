@@ -1,3 +1,4 @@
+import { STAFF_ROLES } from '@/config/roles';
 import { route, created, HttpError } from '@/server/http';
 import { saveImage } from '@/server/storage';
 
@@ -15,5 +16,5 @@ export const POST = route(
     const image = await saveImage(form.get('file'), String(form.get('folder') || 'misc'));
     return created(image, 'Image uploaded.');
   },
-  { roles: ['admin'] }
+  { roles: STAFF_ROLES }
 );

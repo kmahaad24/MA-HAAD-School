@@ -121,7 +121,8 @@ export default function NoticesManager() {
   const { data, loading, error, reload } = useApi('/notices?all=1', { initialData: [], select: (res) => (Array.isArray(res.data) ? res.data : res.data?.items || []) });
   const [editing, setEditing] = useState(null); // null = closed, {} = new, notice = edit
   const [flash, setFlash] = useState('');
-  const [search, setSearch] = useState('');
+  // ?search=… from the dashboard search box (this view only renders in the browser)
+  const [search, setSearch] = useState(() => (typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('search') || ''));
   const [status, setStatus] = useState('');
   const [category, setCategory] = useState('');
 

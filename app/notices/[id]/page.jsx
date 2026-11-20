@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FaArrowLeft, FaCalendarAlt, FaDownload, FaExternalLinkAlt } from 'react-icons/fa';
-import { siteConfig } from '@/config/site';
-import { images } from '@/data/school';
+import { getContents } from '@/server/services/site-content.service';
+import { pageMetadata } from '@/lib/seo';
 import { getPublished, latest } from '@/server/services/notice.service';
 import { formatDate } from '@/lib/utils';
 import PageBanner from '@/components/school/PageBanner';
@@ -24,7 +24,8 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   const notice = await readNotice(id).catch(() => null);
   if (!notice) return { title: 'Notice' };
-  return { title: notice.title, description: notice.summary || `Notice from ${siteConfig.name}` };
+  const { general } = await getContents('general');
+  return pageMetadata({ title: notice.title, description: notice.summary || notice.body || `Notice from ${general.identity.name}`, path: `/notices/${id}`, image: notice.image || undefined, type: 'article' });
 }
 
 export default async function NoticeDetailPage({ params }) {
@@ -37,7 +38,7 @@ export default async function NoticeDetailPage({ params }) {
 
   return (
     <>
-      <PageBanner title="Notice Details" breadcrumbs={[{ label: 'Notice Board', href: '/notices' }, { label: 'Details' }]} image={images.openingCeremony} />
+      <PageBanner title="Notice Details" breadcrumbs={[{ label: 'Notice Board', href: '/notices' }, { label: 'Details' }]} image={(await getContents('notices')).notices.banner.image} />
 
       <Container className="grid gap-10 py-12 md:py-16 lg:grid-cols-[minmax(0,1fr)_320px]">
         <article className="min-w-0 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">

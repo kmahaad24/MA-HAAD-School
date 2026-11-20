@@ -1,6 +1,5 @@
-import { PortalPage, portalMetadata, portalParams } from '@/views/PortalViews';
+import { PortalPage, portalMetadata } from '@/views/PortalViews';
 
-export const generateStaticParams = () => portalParams('requisition');
 export const generateMetadata = ({ params }) => portalMetadata('requisition', params);
 
 export default function Page({ params }) {

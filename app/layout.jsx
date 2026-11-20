@@ -1,40 +1,54 @@
 import { Playfair_Display, Poppins } from 'next/font/google';
 import '@/styles/globals.css';
 import AppShell from '@/components/layout/AppShell';
-import { siteConfig } from '@/config/site';
+import JsonLd from '@/components/seo/JsonLd';
+import { SiteProvider } from '@/providers/SiteProvider';
+import { THEME_COLOR } from '@/config/site';
+import { siteUrl, schoolJsonLd } from '@/lib/seo';
 import { getCachedSetting } from '@/server/services/settings.service';
+import { getContents } from '@/server/services/site-content.service';
 import { tickerNotices } from '@/server/services/notice.service';
 import { DEFAULT_TIME_ZONE, setTimeZone } from '@/lib/timezone';
 
+// Fonts are self-hosted by Next.js (no request to Google), shown with a fallback font until loaded
 const display = Playfair_Display({ subsets: ['latin'], variable: '--font-display', display: 'swap' });
-const sans = Poppins({ subsets: ['latin'], weight: ['300', '400', '500', '600', '700'], variable: '--font-sans', display: 'swap' });
+const sans = Poppins({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-sans', display: 'swap' });
 
-export const metadata = {
-  metadataBase: new URL(siteConfig.url),
-  // Home page: "MA HAAD School & College — Inspiring Young Minds…"; other pages: "Page | MA HAAD School & College"
-  title: {
-    default: `${siteConfig.name} — ${siteConfig.slogan}`,
-    template: `%s | ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  applicationName: siteConfig.name,
-  keywords: ['MA HAAD School', 'MA HAAD School & College', 'English Version school Dhaka', 'school in Khilkhet', 'National Curriculum', 'Play Group to Class X'],
-  openGraph: {
-    title: `${siteConfig.name} — ${siteConfig.slogan}`,
-    description: siteConfig.description,
-    url: siteConfig.url,
-    siteName: siteConfig.name,
-    images: [{ url: '/images/school/sports-march-past.jpg', width: 900, height: 598, alt: siteConfig.name }],
-    locale: 'en_US',
-    type: 'website',
-  },
-};
+// Title, description, link previews and search-engine settings come from Dashboard → Website Content → School information
+export async function generateMetadata() {
+  const { general } = await getContents('general');
+  const { identity, branding, seo } = general;
+  const fullTitle = `${identity.name} — ${identity.tagline}`;
+  return {
+    metadataBase: new URL(siteUrl()),
+    title: { default: fullTitle, template: `%s | ${identity.name}` },
+    description: identity.description,
+    applicationName: identity.name,
+    keywords: seo.keywords,
+    alternates: { canonical: '/' },
+    formatDetection: { telephone: true, email: true, address: true },
+    openGraph: {
+      title: fullTitle,
+      description: identity.description,
+      url: '/',
+      siteName: identity.name,
+      ...(branding.ogImage && { images: [{ url: branding.ogImage, alt: identity.name }] }),
+      locale: 'en_US',
+      type: 'website',
+    },
+    twitter: { card: 'summary_large_image', title: fullTitle, description: identity.description, ...(branding.ogImage && { images: [branding.ogImage] }) },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' } },
+    ...(seo.googleVerification && { verification: { google: seo.googleVerification } }),
+  };
+}
 
 export const viewport = {
-  themeColor: siteConfig.themeColor,
+  themeColor: THEME_COLOR,
+  width: 'device-width',
+  initialScale: 1,
 };
 
-// Every page reads the site timezone and the notice bar per request
+// Every page reads the site timezone and the notice bar per request (both cached in memory)
 export const dynamic = 'force-dynamic';
 
 // Dashboard and login: applies the saved theme (or the system preference) before first paint.
@@ -53,21 +67,26 @@ async function readTicker() {
   try {
     return await tickerNotices(); // cached 60 s
   } catch {
-    return []; // database unreachable — the bar shows the welcome messages
+    return []; // database unreachable — the bar shows the messages from Website Content
   }
 }
 
 export default async function RootLayout({ children }) {
-  const [timeZone, notices] = await Promise.all([readTimeZone(), readTicker()]);
+  const [timeZone, notices, content] = await Promise.all([readTimeZone(), readTicker(), getContents('general', 'navigation', 'shared')]);
   setTimeZone(timeZone);
+  // Only what the header, footer and forms need is sent to the browser
+  const site = { general: content.general, navigation: content.navigation, shared: { ticker: content.shared.ticker } };
 
   return (
     <html lang="en" className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        <JsonLd data={schoolJsonLd(content.general)} />
       </head>
       <body suppressHydrationWarning>
-        <AppShell timeZone={timeZone} notices={notices}>{children}</AppShell>
+        <SiteProvider value={site}>
+          <AppShell timeZone={timeZone} notices={notices}>{children}</AppShell>
+        </SiteProvider>
       </body>
     </html>
   );

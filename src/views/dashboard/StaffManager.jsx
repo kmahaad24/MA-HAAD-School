@@ -67,7 +67,11 @@ function MemberForm({ member, group, onClose, onSaved }) {
 // Dashboard → Teachers & Staff: the people on the five Administration pages
 export default function StaffManager() {
   const { data: people, setData, loading, error, reload } = useApi('/staff', { initialData: [], select: (res) => res.data || [] });
-  const [group, setGroup] = useState(staffGroups[0].slug);
+  // ?group=… from the dashboard search box (this view only renders in the browser)
+  const [group, setGroup] = useState(() => {
+    const wanted = typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('group');
+    return staffGroups.some((g) => g.slug === wanted) ? wanted : staffGroups[0].slug;
+  });
   const [editing, setEditing] = useState(null);
   const [flash, setFlash] = useState('');
   const [failure, setFailure] = useState('');

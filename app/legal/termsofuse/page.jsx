@@ -1,7 +1,6 @@
-import LegalPage from '@/components/layout/LegalPage';
-import { legalDocs } from '@/data/legal';
+import LegalPage, { legalMetadata } from '@/components/layout/LegalPage';
 
-export const metadata = { title: 'Terms of Use', description: legalDocs.termsofuse.summary };
+export const generateMetadata = () => legalMetadata('termsofuse');
 
 export default function Page() {
   return <LegalPage docKey="termsofuse" />;

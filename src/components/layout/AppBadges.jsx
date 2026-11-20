@@ -1,5 +1,6 @@
+'use client';
 import { FaApple } from 'react-icons/fa';
-import { siteConfig } from '@/config/site';
+import { useSite } from '@/providers/SiteProvider';
 import { cn } from '@/lib/utils';
 
 // Four-colour Google Play triangle
@@ -20,12 +21,13 @@ const STORES = [
 ];
 
 // "Available on the App Store" / "Get it on Google Play" badges.
-// They link to the stores once the URLs are set in siteConfig.apps.
+// They link to the stores once the links are added in Dashboard → Website Content → School information.
 export default function AppBadges({ className }) {
+  const { apps } = useSite().general;
   return (
     <div className={cn('flex flex-wrap gap-3', className)} aria-label="Get our app">
       {STORES.map(({ key, label, small, Icon, iconClass }) => {
-        const url = siteConfig.apps?.[key];
+        const url = apps?.[key];
         const body = (
           <>
             <Icon className={cn('shrink-0', iconClass)} />

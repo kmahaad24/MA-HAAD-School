@@ -68,8 +68,9 @@ export function route(handler, { roles, auth = Boolean(roles) } = {}) {
       // The cookie only proves who signed in. Status and role are read fresh, so an account that is
       // suspended or removed loses access right away.
       if (session) {
-        const user = await User.findById(session._id).select('status role').lean().catch(() => null);
-        session = user?.status === 'active' ? { ...session, role: user.role } : null;
+        const user = await User.findById(session._id).select('status role sessionVersion').lean().catch(() => null);
+        const current = user?.status === 'active' && (session.sv || 0) === (user.sessionVersion || 0);
+        session = current ? { ...session, role: user.role } : null;
       }
       if (auth && !session) return fail('Please sign in.', 401);
       if (roles && !roles.includes(session.role)) return fail('You do not have permission to do that.', 403);

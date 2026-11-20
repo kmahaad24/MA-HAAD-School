@@ -1,42 +1,39 @@
-import { siteConfig } from '@/config/site';
-import { sectionLinks } from '@/config/navigation';
 import { EVENT_TYPES } from '@/data/calendar';
 import { currentSession } from '@/server/services/content.service';
-import { images } from '@/data/school';
+import { getContents } from '@/server/services/site-content.service';
+import { pageMetadata } from '@/lib/seo';
 import PageBanner from '@/components/school/PageBanner';
 import SubpageLayout from '@/components/school/SubpageLayout';
 import { Kicker } from '@/components/school/SectionHeading';
-import PrintButton from '@/components/school/PrintButton';
-import { formatRange, weekdayOf } from '@/components/school/YearCalendar';
+import PrintActions from '@/components/print/PrintActions';
+import { dayCount, formatRange, holidayStats, weekdayRange } from '@/lib/calendar';
 import { cn } from '@/lib/utils';
 
 export async function generateMetadata() {
-  const session = await currentSession();
-  return { title: 'List of Holidays', description: `Holidays for ${session.label} at ${siteConfig.name}.` };
+  const [session, { general, campus }] = await Promise.all([currentSession(), getContents('general', 'campus')]);
+  return pageMetadata({ title: 'List of Holidays', description: `Holidays for ${session.label} at ${general.identity.name}.`, path: '/campus/holidays', image: campus.holidays.image });
 }
-
-const days = (h) => (h.end ? Math.round((new Date(`${h.end}T00:00:00Z`) - new Date(`${h.date}T00:00:00Z`)) / 86400000) + 1 : 1);
 
 // The session is managed in Dashboard → Academic Sessions
 export default async function HolidaysPage() {
-  const session = await currentSession();
-  const list = [...session.holidays].sort((a, b) => a.date.localeCompare(b.date));
-  const total = list.reduce((sum, h) => sum + days(h), 0);
+  const [session, { campus }] = await Promise.all([currentSession(), getContents('campus')]);
+  const list = [...session.holidays].sort((a, b) => a.date.localeCompare(b.date) || dayCount(b) - dayCount(a));
+  // Overlapping days (e.g. Christmas inside the winter vacation) are counted once
+  const stats = holidayStats(list, session.weekend);
 
   return (
     <>
-      <PageBanner title="List of Holidays" subtitle={session.label} breadcrumbs={[{ label: 'Campus', href: '/campus' }, { label: 'List of Holidays' }]} image={images.cultural} />
-      <SubpageLayout title="Campus" links={sectionLinks('/campus')} current="/campus/holidays">
+      <PageBanner title="List of Holidays" subtitle={session.label} breadcrumbs={[{ label: campus.banner.title, href: '/campus' }, { label: 'List of Holidays' }]} image={campus.holidays.image} />
+      <SubpageLayout section="/campus" current="/campus/holidays">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <Kicker>{session.label}</Kicker>
             <h2 className="mt-4 font-display text-3xl text-navy-900">Holidays & Vacations</h2>
           </div>
-          <PrintButton label="Print list" />
+          <PrintActions base="/campus/holidays" />
         </div>
         <p className="prose-school mt-4">
-          Weekly holidays: <strong>{session.weekendLabel}</strong>. Religious holidays depend on the sighting of the moon, so dates marked
-          <em> tentative</em> may change — the school will confirm every holiday by notice.
+          Weekly holidays: <strong>{session.weekendLabel}</strong>. {campus.holidays.intro}
         </p>
 
         <div className="mt-8 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -59,20 +56,25 @@ export default async function HolidaysPage() {
                     <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                       <span className={cn('h-2 w-2 rounded-full', (EVENT_TYPES[h.type] || EVENT_TYPES.holiday).dot)} aria-hidden /> {h.kind || (EVENT_TYPES[h.type] || EVENT_TYPES.holiday).label}
                       {h.tentative && <span className="rounded bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-800">Tentative</span>}
+                      {stats.overlaps.get(h) && <span className="italic">Falls within: {stats.overlaps.get(h).join(', ')}</span>}
                     </p>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-slate-700">{formatRange(h)}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-slate-500">
-                    {weekdayOf(h.date)}{h.end ? ` – ${weekdayOf(h.end)}` : ''}
+                    {weekdayRange(h)}
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold text-navy-900">{days(h)}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-navy-900">{dayCount(h)}</td>
                 </tr>
               ))}
             </tbody>
             <tfoot className="bg-brand-50">
               <tr>
-                <td colSpan={4} className="px-4 py-3 text-right font-semibold text-navy-900">Total (calendar days, including weekends)</td>
-                <td className="px-4 py-3 text-right font-bold text-brand-700">{total}</td>
+                <td colSpan={4} className="px-4 py-3 text-right font-semibold text-navy-900">Total days off (including weekends; overlaps counted once)</td>
+                <td className="px-4 py-3 text-right font-bold text-brand-700">{stats.calendarDays}</td>
+              </tr>
+              <tr className="border-t border-brand-100">
+                <td colSpan={4} className="px-4 py-3 text-right font-semibold text-navy-900">School days off (excluding weekly holidays)</td>
+                <td className="px-4 py-3 text-right font-bold text-brand-700">{stats.schoolDays}</td>
               </tr>
             </tfoot>
           </table>

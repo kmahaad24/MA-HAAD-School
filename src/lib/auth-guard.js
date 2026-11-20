@@ -29,6 +29,11 @@ export function requireAdmin(req) {
   return requireRole(req, ['admin']);
 }
 
+// Admins and editors
+export function requireStaff(req) {
+  return requireRole(req, ['admin', 'editor']);
+}
+
 // Session in a server component / layout
 export async function getServerSession() {
   const store = await cookies();

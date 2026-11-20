@@ -76,10 +76,20 @@ const config = {
           from: { opacity: '0' },
           to: { opacity: '1' },
         },
+        'fade-up': {
+          from: { opacity: '0', transform: 'translateY(14px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        shimmer: {
+          from: { backgroundPosition: '200% 0' },
+          to: { backgroundPosition: '-200% 0' },
+        },
       },
       animation: {
         marquee: 'marquee var(--marquee-duration, 40s) linear infinite',
         'fade-in': 'fade-in 0.25s ease-out',
+        'fade-up': 'fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both',
+        shimmer: 'shimmer 1.6s linear infinite',
       },
     },
   },

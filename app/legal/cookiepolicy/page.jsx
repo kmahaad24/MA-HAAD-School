@@ -1,7 +1,6 @@
-import LegalPage from '@/components/layout/LegalPage';
-import { legalDocs } from '@/data/legal';
+import LegalPage, { legalMetadata } from '@/components/layout/LegalPage';
 
-export const metadata = { title: 'Cookie Policy', description: legalDocs.cookiepolicy.summary };
+export const generateMetadata = () => legalMetadata('cookiepolicy');
 
 export default function Page() {
   return <LegalPage docKey="cookiepolicy" />;

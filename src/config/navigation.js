@@ -1,119 +1,25 @@
 import { TbLayoutDashboard } from 'react-icons/tb';
-import { FaGlobe, FaCog, FaSignInAlt, FaHistory, FaBullhorn, FaImages, FaUsers, FaUserTie, FaCalendarAlt } from 'react-icons/fa';
+import { FaGlobe, FaCog, FaSignInAlt, FaHistory, FaBullhorn, FaImages, FaUsers, FaUserTie, FaCalendarAlt, FaEnvelope, FaEdit, FaSchool, FaBars, FaHome, FaGraduationCap, FaFlask, FaInfoCircle, FaUserCog, FaUserCircle } from 'react-icons/fa';
 
-// Public site menu (header + mobile menu). Items with `children` open a dropdown.
-export const mainNav = [
-  { label: 'Home', href: '/' },
-  {
-    label: 'About Us',
-    href: '/about',
-    children: [
-      { label: 'About MA HAAD School and College', href: '/about' },
-      { label: "CEO's Message", href: '/about/ceo-message' },
-      { label: "Principal's Message", href: '/about/principal-message' },
-    ],
-  },
-  {
-    label: 'Facilities',
-    href: '/facilities',
-    children: [
-      { label: 'Library', href: '/facilities/library' },
-      { label: 'Laboratory', href: '/facilities/laboratory' },
-      { label: 'Medical', href: '/facilities/medical' },
-      { label: 'Digital Class Room', href: '/facilities/digital-classroom' },
-      { label: 'Computer Lab', href: '/facilities/computer-lab' },
-      { label: 'Debate Club', href: '/facilities/debate-club' },
-    ],
-  },
-  {
-    label: 'Admission',
-    href: '/admission',
-    children: [
-      { label: 'PG – KG', href: '/admission/pg-kg' },
-      { label: 'Class I – Class V', href: '/admission/class-1-5' },
-      { label: 'Class VI – Class X', href: '/admission/class-6-10' },
-      { label: 'Admission Information', href: '/admission/information' },
-      { label: 'Rules and Regulations', href: '/admission/rules-and-regulations' },
-      { label: 'Transfer Procedure', href: '/admission/transfer-procedure' },
-      { label: 'Prospectus', href: '/admission/prospectus' },
-    ],
-  },
-  {
-    label: 'Campus',
-    href: '/campus',
-    children: [
-      { label: 'Books', href: '/campus/books' },
-      { label: 'List of Holidays', href: '/campus/holidays' },
-      { label: 'Academic Calendar', href: '/campus/academic-calendar' },
-    ],
-  },
-  {
-    label: 'Administration',
-    href: '/administration',
-    children: [
-      { label: 'Board of Trustees', href: '/administration/board-of-trustees' },
-      { label: 'Managements', href: '/administration/management' },
-      { label: 'Primary School Teachers', href: '/administration/primary-teachers' },
-      { label: 'Junior School Teachers', href: '/administration/junior-teachers' },
-      { label: 'Secondary School Teachers', href: '/administration/secondary-teachers' },
-    ],
-  },
-  { label: 'Photo Gallery', href: '/gallery' },
-  { label: 'Contact Us', href: '/contact' },
-];
+// The public menus are website content (Dashboard → Website Content → Menus). Helpers below take that content.
 
-// Footer columns
-export const footerNav = {
-  quick: [
-    { label: 'About Us', href: '/about' },
-    { label: 'Notice Board', href: '/notices' },
-    { label: 'Academic Calendar', href: '/campus/academic-calendar' },
-    { label: 'List of Holidays', href: '/campus/holidays' },
-    { label: 'Photo Gallery', href: '/gallery' },
-    { label: 'Contact Us', href: '/contact' },
-  ],
-  admission: [
-    { label: 'PG – KG', href: '/admission/pg-kg' },
-    { label: 'Class I – Class V', href: '/admission/class-1-5' },
-    { label: 'Class VI – Class X', href: '/admission/class-6-10' },
-    { label: 'Admission Information', href: '/admission/information' },
-    { label: 'Rules and Regulations', href: '/admission/rules-and-regulations' },
-    { label: 'Prospectus', href: '/admission/prospectus' },
-  ],
-  useful: [
-    { label: 'Ministry of Education', href: 'https://moedu.gov.bd' },
-    { label: 'Ministry of Primary & Mass Education', href: 'https://mopme.gov.bd' },
-    { label: 'Dhaka Education Board', href: 'https://dhakaeducationboard.gov.bd' },
-    { label: 'NCTB', href: 'https://nctb.gov.bd' },
-    { label: 'Directorate of Secondary & Higher Education', href: 'https://dshe.gov.bd' },
-    { label: 'Directorate of Primary Education', href: 'https://dpe.gov.bd' },
-  ],
-};
+// The dropdown links of one top-level item, e.g. sectionLinks(navigation, '/admission') — used for page sidebars
+export const sectionLinks = (navigation, href) => navigation?.main?.find((item) => item.href === href)?.children || [];
 
-export const legalNav = [
-  { label: 'Terms of Use', href: '/legal/termsofuse' },
-  { label: 'Privacy Policy', href: '/legal/appprivacypolicy' },
-  { label: 'Cookie Policy', href: '/legal/cookiepolicy' },
-  { label: 'Refund Policy', href: '/legal/refundpolicy' },
-];
-
-// The dropdown links of one top-level item, e.g. sectionLinks('/admission') — used for page sidebars
-export const sectionLinks = (href) => mainNav.find((item) => item.href === href)?.children || [];
-
-// Every public page, for the sitemap
-export function allPublicLinks() {
+// Every internal page in the menus (sitemap)
+export function menuLinks(navigation) {
   const seen = new Set();
   const links = [];
   const add = (link) => {
-    if (link.href.startsWith('http') || seen.has(link.href)) return;
+    if (!link?.href?.startsWith('/') || seen.has(link.href)) return;
     seen.add(link.href);
     links.push(link);
   };
-  mainNav.forEach((item) => {
+  navigation.main.forEach((item) => {
     add(item);
     item.children?.forEach(add);
   });
-  [...footerNav.quick, ...legalNav].forEach(add);
+  [...navigation.footerQuick, ...navigation.footerAdmission, ...navigation.legal].forEach(add);
   return links;
 }
 
@@ -123,12 +29,25 @@ export const dashboardNav = [
     title: 'Overview',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: TbLayoutDashboard },
+      { label: 'Contact Requests', href: '/dashboard/messages', icon: FaEnvelope, badge: 'unreadMessages' },
       { label: 'Traffic Analytics', href: '/dashboard/traffic', icon: FaGlobe },
+    ],
+  },
+  {
+    title: 'Site Setup',
+    items: [
+      { label: 'School Information', href: '/dashboard/school-info', icon: FaSchool },
+      { label: 'Menus', href: '/dashboard/menus', icon: FaBars },
+      { label: 'Home Page', href: '/dashboard/home-page', icon: FaHome },
+      { label: 'About Page', href: '/dashboard/about-page', icon: FaInfoCircle },
+      { label: 'Facilities', href: '/dashboard/facilities', icon: FaFlask },
+      { label: 'Admission', href: '/dashboard/admission', icon: FaGraduationCap },
     ],
   },
   {
     title: 'Website',
     items: [
+      { label: 'Page Content', href: '/dashboard/content', icon: FaEdit },
       { label: 'Notices', href: '/dashboard/notices', icon: FaBullhorn },
       { label: 'Photo Gallery', href: '/dashboard/gallery', icon: FaImages },
       { label: 'Teachers & Staff', href: '/dashboard/staff', icon: FaUsers },
@@ -145,7 +64,11 @@ export const dashboardNav = [
   },
   {
     title: 'System',
-    items: [{ label: 'Settings', href: '/dashboard/settings', icon: FaCog }],
+    items: [
+      { label: 'Users', href: '/dashboard/users', icon: FaUserCog },
+      { label: 'My Profile', href: '/dashboard/profile', icon: FaUserCircle },
+      { label: 'Settings', href: '/dashboard/settings', icon: FaCog },
+    ],
   },
 ];
 

@@ -29,3 +29,13 @@ export function toDateInput(value) {
   if (!value) return '';
   return new Intl.DateTimeFormat('en-CA', { timeZone: getTimeZone(), year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(value));
 }
+
+// "01896-281602" → "tel:+8801896281602" (Bangladesh numbers; numbers with a country code are kept)
+export function telHref(phone) {
+  const digits = String(phone || '').replace(/\D/g, '');
+  if (digits.startsWith('880')) return `tel:+${digits}`;
+  return `tel:+880${digits.replace(/^0/, '')}`;
+}
+
+// Links to other sites open in a new tab
+export const isExternal = (href = '') => /^https?:\/\//i.test(href);

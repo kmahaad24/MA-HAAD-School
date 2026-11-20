@@ -1,24 +1,48 @@
 'use client';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { usePathname, useRouter } from 'next/navigation';
 import { HiX } from 'react-icons/hi';
 import { CiLogout } from 'react-icons/ci';
 import { dashboardNav } from '@/config/navigation';
+import { canOpen, ROLE_INFO } from '@/config/roles';
 import useAuth from '@/hooks/useAuth';
+import { apiSecure } from '@/lib/api-client';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/layout/Logo';
 import ThemeToggle from '@/components/layout/ThemeToggle';
+import UserAvatar from './UserAvatar';
+
+// Unread contact requests for the menu badge — refreshed on every page change
+function useUnreadCount(pathname) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let active = true;
+    apiSecure
+      .get('/contact?status=unread&limit=1')
+      .then((res) => active && setCount(res.data.data?.counts?.unread || 0))
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [pathname]);
+  return count;
+}
 
 export default function Sidebar({ onClose }) {
   const pathname = usePathname();
   const router = useRouter();
   const { logOut, user } = useAuth();
+  const badges = { unreadMessages: useUnreadCount(pathname) };
 
   const handleLogout = async () => {
     await logOut().catch(() => {});
     router.push('/login');
   };
+
+  // Editors only see the pages they can open
+  const groups = dashboardNav.map((g) => ({ ...g, items: g.items.filter((i) => canOpen(user?.role, i.href)) })).filter((g) => g.items.length);
 
   return (
     <div className="flex h-full w-64 flex-col border-r border-line/10 bg-surface">
@@ -30,12 +54,13 @@ export default function Sidebar({ onClose }) {
       </div>
 
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
-        {dashboardNav.map((group) => (
+        {groups.map((group) => (
           <div key={group.title}>
             <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-faint">{group.title}</p>
             <ul className="space-y-1">
-              {group.items.map(({ label, href, icon: Icon, external }) => {
+              {group.items.map(({ label, href, icon: Icon, external, badge }) => {
                 const active = href === '/dashboard' ? pathname === href : pathname.startsWith(href);
+                const count = badge ? badges[badge] : 0;
                 return (
                   <li key={href}>
                     <Link
@@ -48,8 +73,9 @@ export default function Sidebar({ onClose }) {
                       )}
                     >
                       {Icon && <Icon className="text-lg" />}
-                      {label}
-                      {external && <FaExternalLinkAlt className="ml-auto text-[10px] opacity-60" aria-label="opens in a new tab" />}
+                      <span className="flex-1">{label}</span>
+                      {count > 0 && <span className="rounded-full bg-primary-600 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">{count > 99 ? '99+' : count}</span>}
+                      {external && <FaExternalLinkAlt className="text-[10px] opacity-60" aria-label="opens in a new tab" />}
                     </Link>
                   </li>
                 );
@@ -60,7 +86,15 @@ export default function Sidebar({ onClose }) {
       </nav>
 
       <div className="border-t border-line/10 p-4">
-        {user?.email && <p className="mb-3 truncate px-1 text-xs text-subtle">{user.email}</p>}
+        {user && (
+          <Link href="/dashboard/profile" onClick={onClose} className="mb-3 flex items-center gap-3 rounded-lg p-1.5 hover:bg-line/5">
+            <UserAvatar user={user} size="h-9 w-9 text-xs" />
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-semibold text-ink">{user.name}</span>
+              <span className="block truncate text-xs text-subtle">{ROLE_INFO[user.role]?.label || user.role} · {user.email}</span>
+            </span>
+          </Link>
+        )}
         <ThemeToggle variant="row" className="mb-2" />
         <button
           type="button"

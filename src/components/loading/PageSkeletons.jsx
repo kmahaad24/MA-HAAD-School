@@ -1,7 +1,7 @@
 // Page-shaped placeholders shown by app/**/loading.jsx and the dashboard while data loads.
 import Skeleton, { LoadingLabel, SkeletonText } from '@/components/ui/Skeleton';
 
-// Same banner as DarkPageHeader
+// Dark page banner skeleton
 export function HeaderSkeleton({ children, withTitle = true }) {
   return (
     <header className="relative overflow-hidden border-b border-line/10 bg-canvas-2">
@@ -89,6 +89,39 @@ export function FormSkeleton({ cards = 2 }) {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+// Public website: banner + content cards, shown instantly while a page loads (app/loading.jsx)
+export function PublicPageSkeleton() {
+  return (
+    <div aria-busy="true">
+      <LoadingLabel>Loading page…</LoadingLabel>
+      <div className="relative overflow-hidden bg-navy-900">
+        <div className="container max-w-7xl py-12 md:py-16 lg:py-20 2xl:max-w-screen-2xl">
+          <span className="block h-10 w-2/3 max-w-md animate-pulse rounded-lg bg-white/10 md:h-12" />
+          <span className="mt-4 block h-4 w-1/2 max-w-sm animate-pulse rounded bg-white/10" />
+          <span className="mt-6 block h-3.5 w-40 animate-pulse rounded bg-white/10" />
+        </div>
+        <span className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-gold-400 via-gold-300 to-gold-500" />
+      </div>
+      <div className="container max-w-7xl py-14 2xl:max-w-screen-2xl">
+        <span className="mx-auto block h-6 w-28 rounded-full skeleton-shimmer" />
+        <span className="mx-auto mt-4 block h-8 w-72 max-w-full rounded-lg skeleton-shimmer" />
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }, (_, i) => (
+            <div key={i} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <span className="block aspect-[16/10] skeleton-shimmer" />
+              <div className="space-y-3 p-6">
+                <span className="block h-5 w-2/3 rounded skeleton-shimmer" />
+                <span className="block h-3.5 w-full rounded skeleton-shimmer" />
+                <span className="block h-3.5 w-4/5 rounded skeleton-shimmer" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

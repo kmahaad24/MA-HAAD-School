@@ -5,7 +5,8 @@ const MAX_AGE = 7 * 24 * 60 * 60; // 7 days
 
 export function createSessionToken(user) {
   return jwt.sign(
-    { _id: String(user._id), email: user.email, name: user.name || '', role: user.role },
+    // sv = session version; it changes when the password, role or status changes, which signs out old sessions
+    { _id: String(user._id), email: user.email, name: user.name || '', role: user.role, sv: user.sessionVersion || 0 },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );

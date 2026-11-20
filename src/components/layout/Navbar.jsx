@@ -4,9 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { HiMenu, HiX, HiChevronDown } from 'react-icons/hi';
 import { FaPhoneAlt, FaEnvelope, FaClock, FaMapMarkerAlt, FaBullhorn, FaUserLock, FaGraduationCap } from 'react-icons/fa';
-import { mainNav } from '@/config/navigation';
-import { siteConfig, telHref } from '@/config/site';
-import { cn } from '@/lib/utils';
+import { useSite } from '@/providers/SiteProvider';
+import { cn, telHref } from '@/lib/utils';
 import Container from '@/components/ui/Container';
 import Logo from './Logo';
 
@@ -16,30 +15,33 @@ const isActive = (pathname, item) => {
   return Boolean(item.children?.some((c) => pathname === c.href));
 };
 
+const hasChildren = (item) => item.children?.length > 0;
+
 // Thin navy strip: contact details + notice board / staff login
 function TopBar() {
-  const { contact } = siteConfig;
+  const { contact, header } = useSite().general;
+  const phone = contact.phones[0];
   return (
     <div className="hidden bg-navy-950 text-[13px] text-white/80 md:block">
       <Container className="flex h-9 items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-5">
-          <a href={telHref(contact.phones[0])} className="flex items-center gap-2 hover:text-gold-300">
+          {phone && <a href={telHref(phone)} className="flex items-center gap-2 hover:text-gold-300">
             <FaPhoneAlt className="text-[11px] text-gold-400" aria-hidden /> {contact.phones.join(', ')}
-          </a>
-          <a href={`mailto:${contact.email}`} className="flex items-center gap-2 hover:text-gold-300">
+          </a>}
+          {contact.email && <a href={`mailto:${contact.email}`} className="flex min-w-0 items-center gap-2 truncate hover:text-gold-300">
             <FaEnvelope className="text-[11px] text-gold-400" aria-hidden /> {contact.email}
-          </a>
-          <span className="hidden items-center gap-2 lg:flex">
+          </a>}
+          {contact.callingTime && <span className="hidden items-center gap-2 lg:flex">
             <FaClock className="text-[11px] text-gold-400" aria-hidden /> Calling Time: {contact.callingTime}
-          </span>
+          </span>}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <Link href="/notices" className="flex items-center gap-1.5 rounded px-2 py-1 hover:text-gold-300">
             <FaBullhorn className="text-[11px] text-gold-400" aria-hidden /> Notice Board
           </Link>
-          <Link href="/login" className="flex items-center gap-1.5 rounded-full bg-gold-400 px-3 py-1 text-xs font-semibold text-navy-950 transition-colors hover:bg-gold-300">
+          {header.showStaffLogin && <Link href="/login" className="flex items-center gap-1.5 rounded-full bg-gold-400 px-3 py-1 text-xs font-semibold text-navy-950 transition-colors hover:bg-gold-300">
             <FaUserLock aria-hidden /> Staff Login
-          </Link>
+          </Link>}
         </div>
       </Container>
     </div>
@@ -86,7 +88,7 @@ function Dropdown({ item, alignRight, onNavigate }) {
   );
 }
 
-function DesktopNav({ pathname }) {
+function DesktopNav({ pathname, items }) {
   const [open, setOpen] = useState(null);
   const closeTimer = useRef(null);
   const navRef = useRef(null);
@@ -117,7 +119,7 @@ function DesktopNav({ pathname }) {
     <nav ref={navRef} aria-label="Main" className="sticky top-0 z-40 hidden bg-navy-900 shadow-lg shadow-navy-950/20 xl:block">
       <Container>
         <ul className="flex items-stretch justify-center">
-          {mainNav.map((item, index) => {
+          {items.map((item, index) => {
             const active = isActive(pathname, item);
             const base = cn(
               'relative flex h-12 items-center gap-1 whitespace-nowrap px-3 text-[13.5px] font-medium transition-colors 2xl:px-4 2xl:text-sm',
@@ -125,7 +127,7 @@ function DesktopNav({ pathname }) {
               'after:absolute after:inset-x-3 after:bottom-0 after:h-[3px] after:rounded-t after:bg-gold-400 after:transition-transform',
               active ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'
             );
-            if (!item.children) {
+            if (!hasChildren(item)) {
               return (
                 <li key={item.href}>
                   <Link href={item.href} className={base} aria-current={active ? 'page' : undefined}>
@@ -147,7 +149,7 @@ function DesktopNav({ pathname }) {
                   {item.label}
                   <HiChevronDown className={cn('text-base opacity-70 transition-transform', isOpen && 'rotate-180')} aria-hidden />
                 </button>
-                {isOpen && <Dropdown item={item} alignRight={index >= mainNav.length - 3} onNavigate={() => setOpen(null)} />}
+                {isOpen && <Dropdown item={item} alignRight={index >= items.length - 3} onNavigate={() => setOpen(null)} />}
               </li>
             );
           })}
@@ -157,9 +159,9 @@ function DesktopNav({ pathname }) {
   );
 }
 
-function MobileMenu({ pathname, onClose }) {
-  const [expanded, setExpanded] = useState(() => mainNav.find((item) => item.children && isActive(pathname, item))?.label || null);
-  const { contact } = siteConfig;
+function MobileMenu({ pathname, onClose, items }) {
+  const [expanded, setExpanded] = useState(() => items.find((item) => hasChildren(item) && isActive(pathname, item))?.label || null);
+  const { contact, header } = useSite().general;
 
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
@@ -184,9 +186,9 @@ function MobileMenu({ pathname, onClose }) {
 
         <nav className="flex-1 overflow-y-auto px-3 py-3" aria-label="Mobile">
           <ul className="space-y-0.5">
-            {mainNav.map((item) => {
+            {items.map((item) => {
               const active = isActive(pathname, item);
-              if (!item.children) {
+              if (!hasChildren(item)) {
                 return (
                   <li key={item.href}>
                     <Link
@@ -239,10 +241,10 @@ function MobileMenu({ pathname, onClose }) {
               <FaPhoneAlt className="text-xs text-brand-600" aria-hidden /> {phone}
             </a>
           ))}
-          <p className="flex items-center gap-2"><FaClock className="text-xs text-brand-600" aria-hidden /> {contact.callingTime}</p>
+          {contact.callingTime && <p className="flex items-center gap-2"><FaClock className="text-xs text-brand-600" aria-hidden /> {contact.callingTime}</p>}
           <div className="grid grid-cols-2 gap-2 pt-2">
             <Link href="/notices" onClick={onClose} className="rounded-lg border border-slate-300 bg-white py-2 text-center font-medium text-navy-900">Notices</Link>
-            <Link href="/login" onClick={onClose} className="rounded-lg bg-navy-900 py-2 text-center font-medium text-white">Staff Login</Link>
+            {header.showStaffLogin && <Link href="/login" onClick={onClose} className="rounded-lg bg-navy-900 py-2 text-center font-medium text-white">Staff Login</Link>}
           </div>
         </div>
       </div>
@@ -258,7 +260,9 @@ export default function Navbar() {
   const [openOn, setOpenOn] = useState(null);
   const mobileOpen = openOn === pathname;
   const closeMenu = useCallback(() => setOpenOn(null), []);
-  const { contact } = siteConfig;
+  const { general, navigation } = useSite();
+  const { contact, header } = general;
+  const phone = contact.phones[0];
 
   return (
     <>
@@ -269,16 +273,18 @@ export default function Navbar() {
           <Logo size="lg" preload />
 
           <div className="hidden items-center gap-7 lg:flex">
-            <InfoItem icon={FaPhoneAlt} label="Call us">
-              <a href={telHref(contact.phones[0])} className="hover:text-brand-600">{contact.phones[0]}</a>
-            </InfoItem>
-            <InfoItem icon={FaMapMarkerAlt} label="Visit us">{contact.addressShort}</InfoItem>
-            <Link
-              href="/admission/information"
+            {phone && (
+              <InfoItem icon={FaPhoneAlt} label="Call us">
+                <a href={telHref(phone)} className="hover:text-brand-600">{phone}</a>
+              </InfoItem>
+            )}
+            {contact.addressShort && <InfoItem icon={FaMapMarkerAlt} label="Visit us">{contact.addressShort}</InfoItem>}
+            {header.ctaLabel && header.ctaHref && <Link
+              href={header.ctaHref}
               className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-gold-400 to-gold-500 px-5 py-2.5 text-sm font-semibold text-navy-950 shadow-md shadow-gold-500/30 transition hover:brightness-105"
             >
-              <FaGraduationCap aria-hidden /> Admission
-            </Link>
+              <FaGraduationCap aria-hidden /> {header.ctaLabel}
+            </Link>}
           </div>
 
           <button
@@ -294,9 +300,9 @@ export default function Navbar() {
         </Container>
       </div>
 
-      <DesktopNav key={pathname} pathname={pathname} />
+      <DesktopNav key={pathname} pathname={pathname} items={navigation.main} />
 
-      {mobileOpen && <MobileMenu pathname={pathname} onClose={closeMenu} />}
+      {mobileOpen && <MobileMenu pathname={pathname} onClose={closeMenu} items={navigation.main} />}
     </>
   );
 }

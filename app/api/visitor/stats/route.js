@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import VisitorLog from '@/models/VisitorLog';
-import { requireAdmin, unauthorizedResponse } from '@/lib/auth-guard';
+import { requireStaff, unauthorizedResponse } from '@/lib/auth-guard';
 
 export const dynamic = 'force-dynamic';
 
 // Admin: full analytics for Dashboard › Traffic Analytics
 export async function GET(req) {
-  if (!requireAdmin(req)) return unauthorizedResponse();
+  if (!requireStaff(req)) return unauthorizedResponse();
   try {
     await connectDB();
     const now = new Date();

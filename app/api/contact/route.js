@@ -1,41 +1,30 @@
-import { NextResponse } from 'next/server';
-import connectDB from '@/lib/db';
-import ContactMessage from '@/models/ContactMessage';
-import { findRecentDuplicate } from '@/lib/dedupe-guard';
+import { STAFF_ROLES } from '@/config/roles';
+import { after } from 'next/server';
+import { route, ok, created, readJson, HttpError } from '@/server/http';
 import { getClientIp } from '@/lib/visitor';
 import { isRateLimited } from '@/lib/rate-limit';
+import { getContent } from '@/server/services/site-content.service';
+import { submitMessage, sendMessageEmails, looksAutomated, listMessages } from '@/server/services/contact.service';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const dynamic = 'force-dynamic';
 
-// Public: submit the contact form (messages are listed on the dashboard overview)
-export async function POST(req) {
-  try {
-    if (isRateLimited(`contact:${getClientIp(req)}`, { limit: 5, windowMs: 60 * 60 * 1000 })) {
-      return NextResponse.json({ success: false, message: 'Too many messages. Please try again later.' }, { status: 429 });
-    }
-    const body = await req.json();
-    const data = {
-      fullName: String(body.fullName || '').trim().slice(0, 120),
-      email: String(body.email || '').trim().toLowerCase().slice(0, 160),
-      phone: String(body.phone || '').trim().slice(0, 30),
-      subject: String(body.subject || '').trim().slice(0, 200),
-      message: String(body.message || '').trim().slice(0, 5000),
-    };
+// POST /api/contact (public) — the Contact page form. The message is saved first; the email to the school
+// and the confirmation to the sender go out after the reply, so a slow mail server never delays the visitor.
+export const POST = route(async ({ req }) => {
+  const ip = getClientIp(req);
+  if (isRateLimited(`contact:${ip}`, { limit: 5, windowMs: 60 * 60 * 1000 })) throw new HttpError(429, 'Too many messages. Please try again later.');
+  const body = await readJson(req);
+  const { form } = await getContent('contact');
+  if (looksAutomated(body)) return created(null, form.successText);
 
-    if (!data.fullName || !data.message || !EMAIL_RE.test(data.email)) {
-      return NextResponse.json({ success: false, message: 'Name, a valid email and a message are required.' }, { status: 400 });
-    }
+  const result = await submitMessage(body, { ip, userAgent: req.headers.get('user-agent'), page: req.headers.get('referer') });
+  if (result.duplicate) return ok(null, 'We already received your message — we will get back to you soon.');
+  if (result.mail) after(() => sendMessageEmails(result.message));
+  return created(null, result.confirmation ? form.successText : 'Thank you! Your message has been sent. We will get back to you soon.');
+});
 
-    await connectDB();
-    const existing = await findRecentDuplicate(ContactMessage, { email: data.email, message: data.message });
-    if (existing) {
-      return NextResponse.json({ success: true, message: 'We already received your message — we will get back to you soon.' });
-    }
-
-    await ContactMessage.create(data);
-    return NextResponse.json({ success: true, message: 'Thanks! Your message has been sent.' }, { status: 201 });
-  } catch (error) {
-    console.error('Contact POST error:', error);
-    return NextResponse.json({ success: false, message: 'Failed to send message.' }, { status: 500 });
-  }
-}
+// GET /api/contact?status=unread&search=…&page=2 (admins) — Dashboard → Messages
+export const GET = route(
+  async ({ query }) => ok(await listMessages({ status: query.get('status') || '', search: query.get('search') || '', page: query.get('page'), limit: query.get('limit') })),
+  { roles: STAFF_ROLES }
+);

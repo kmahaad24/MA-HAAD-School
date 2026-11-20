@@ -1,3 +1,4 @@
+import { STAFF_ROLES } from '@/config/roles';
 import { route, ok, readJson } from '@/server/http';
 import * as content from '@/server/services/content.service';
 
@@ -9,5 +10,5 @@ export const PUT = route(
     const { group, ids } = await readJson(req);
     return ok(await content.orderStaff(group, ids), 'Order saved.');
   },
-  { roles: ['admin'] }
+  { roles: STAFF_ROLES }
 );

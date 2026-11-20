@@ -1,9 +1,5 @@
-// School content shown across the website. Edit the text here — pages read from this file.
-import {
-  FaBookOpen, FaFlask, FaHeartbeat, FaChalkboardTeacher, FaLaptopCode, FaMicrophoneAlt,
-  FaGraduationCap, FaUserTie, FaLanguage, FaLightbulb, FaHandsHelping, FaShieldAlt,
-  FaBullseye, FaEye, FaHeart, FaPalette, FaUsers, FaSmile, FaBalanceScale,
-} from 'react-icons/fa';
+// Built-in website content (the starting text). Everything here can be changed in Dashboard → Website Content;
+// src/content/defaults.js arranges it into the editable sections.
 
 export const images = {
   marchPast: '/images/school/sports-march-past.jpg',
@@ -79,25 +75,25 @@ export const welcome = {
 };
 
 export const highlights = [
-  { icon: FaLanguage, label: 'English Version' },
-  { icon: FaBookOpen, label: 'National Curriculum of Bangladesh' },
-  { icon: FaGraduationCap, label: 'Play Group to Class X' },
-  { icon: FaHandsHelping, label: 'Student-friendly environment' },
+  { icon: 'language', label: 'English Version' },
+  { icon: 'book-open', label: 'National Curriculum of Bangladesh' },
+  { icon: 'graduation', label: 'Play Group to Class X' },
+  { icon: 'hands-helping', label: 'Student-friendly environment' },
 ];
 
 export const purpose = [
   {
-    icon: FaBullseye,
+    icon: 'bullseye',
     title: 'Our Mission',
     text: 'To provide quality education in a supportive, engaging and student-friendly environment where every child is encouraged to learn, explore and achieve their full potential.',
   },
   {
-    icon: FaEye,
+    icon: 'eye',
     title: 'Our Vision',
     text: 'To nurture curious minds, responsible citizens, creative thinkers and confident individuals who are prepared to embrace opportunities and contribute positively to society.',
   },
   {
-    icon: FaHeart,
+    icon: 'heart',
     title: 'Our Values',
     text: 'Honesty, discipline, respect, kindness, teamwork and a positive attitude towards life — values that guide our students in school and beyond.',
   },
@@ -105,21 +101,21 @@ export const purpose = [
 
 // Six values from the school's welcome message (home page band)
 export const values = [
-  { icon: FaShieldAlt, title: 'Honesty' },
-  { icon: FaBalanceScale, title: 'Discipline' },
-  { icon: FaHandsHelping, title: 'Respect' },
-  { icon: FaHeart, title: 'Kindness' },
-  { icon: FaUsers, title: 'Teamwork' },
-  { icon: FaSmile, title: 'Positive Attitude' },
+  { icon: 'shield', title: 'Honesty' },
+  { icon: 'balance', title: 'Discipline' },
+  { icon: 'hands-helping', title: 'Respect' },
+  { icon: 'heart', title: 'Kindness' },
+  { icon: 'users', title: 'Teamwork' },
+  { icon: 'smile', title: 'Positive Attitude' },
 ];
 
 export const approach = [
-  { icon: FaGraduationCap, title: 'Strong Academic Foundations', text: 'A well-planned National Curriculum programme in English Version, taught with care from the earliest classes.' },
-  { icon: FaLanguage, title: 'English Language Proficiency', text: 'Daily practice in reading, writing, listening and speaking so students communicate with confidence.' },
-  { icon: FaLightbulb, title: 'Critical Thinking', text: 'Students are encouraged to ask questions freely, solve problems and respect different perspectives.' },
-  { icon: FaPalette, title: 'Creativity & Confidence', text: 'Art, culture, debate and sports help every child express ideas and discover their strengths.' },
-  { icon: FaChalkboardTeacher, title: 'Effective Teaching', text: 'Meaningful classroom experiences that make learning enjoyable, purposeful and relevant.' },
-  { icon: FaHandsHelping, title: 'School–Family Partnership', text: 'Students, teachers and parents working together to support the overall development of every learner.' },
+  { icon: 'graduation', title: 'Strong Academic Foundations', text: 'A well-planned National Curriculum programme in English Version, taught with care from the earliest classes.' },
+  { icon: 'language', title: 'English Language Proficiency', text: 'Daily practice in reading, writing, listening and speaking so students communicate with confidence.' },
+  { icon: 'lightbulb', title: 'Critical Thinking', text: 'Students are encouraged to ask questions freely, solve problems and respect different perspectives.' },
+  { icon: 'palette', title: 'Creativity & Confidence', text: 'Art, culture, debate and sports help every child express ideas and discover their strengths.' },
+  { icon: 'chalkboard', title: 'Effective Teaching', text: 'Meaningful classroom experiences that make learning enjoyable, purposeful and relevant.' },
+  { icon: 'hands-helping', title: 'School–Family Partnership', text: 'Students, teachers and parents working together to support the overall development of every learner.' },
 ];
 
 // ---------- Messages ----------
@@ -171,7 +167,7 @@ export const facilities = [
   {
     slug: 'library',
     title: 'Library',
-    icon: FaBookOpen,
+    icon: 'book-open',
     image: '/images/facilities/library.jpg',
     summary: 'A quiet, welcoming library with textbooks, story books and reference materials for every age group.',
     paragraphs: [
@@ -183,7 +179,7 @@ export const facilities = [
   {
     slug: 'laboratory',
     title: 'Laboratory',
-    icon: FaFlask,
+    icon: 'flask',
     image: '/images/facilities/laboratory.jpg',
     summary: 'Science laboratory where students turn lessons into hands-on experiments under teacher supervision.',
     paragraphs: [
@@ -195,7 +191,7 @@ export const facilities = [
   {
     slug: 'medical',
     title: 'Medical',
-    icon: FaHeartbeat,
+    icon: 'heartbeat',
     image: '/images/facilities/medical.jpg',
     summary: 'First-aid and medical support on campus so that every child is cared for during the school day.',
     paragraphs: [
@@ -207,7 +203,7 @@ export const facilities = [
   {
     slug: 'digital-classroom',
     title: 'Digital Class Room',
-    icon: FaChalkboardTeacher,
+    icon: 'chalkboard',
     image: '/images/facilities/digital-classroom.jpg',
     summary: 'Multimedia classrooms that make lessons visual, interactive and easier to understand.',
     paragraphs: [
@@ -219,7 +215,7 @@ export const facilities = [
   {
     slug: 'computer-lab',
     title: 'Computer Lab',
-    icon: FaLaptopCode,
+    icon: 'laptop',
     image: '/images/facilities/computer-lab.jpg',
     summary: 'A computer lab where students learn ICT skills, typing, internet safety and basic programming.',
     paragraphs: [
@@ -231,7 +227,7 @@ export const facilities = [
   {
     slug: 'debate-club',
     title: 'Debate Club',
-    icon: FaMicrophoneAlt,
+    icon: 'microphone',
     image: '/images/facilities/debate-club.jpg',
     summary: 'A club that builds confident speakers — debate, recitation, public speaking and extempore.',
     paragraphs: [
@@ -433,8 +429,8 @@ export const prospectus = {
 
 // Home page "quick links" cards under the slider
 export const quickLinks = [
-  { title: 'Admission', text: 'Classes, age guidelines and how to apply', href: '/admission/information', cta: 'Apply Now', icon: FaGraduationCap },
-  { title: 'Notice Board', text: 'Latest notices and announcements', href: '/notices', cta: 'View Notices', icon: FaBookOpen },
-  { title: 'Academic Calendar', text: 'Exams, events and holidays of the year', href: '/campus/academic-calendar', cta: 'View Calendar', icon: FaChalkboardTeacher },
-  { title: 'Rules & Regulations', text: 'Attendance, uniform, conduct and fees', href: '/admission/rules-and-regulations', cta: 'Read Rules', icon: FaUserTie },
+  { title: 'Admission', text: 'Classes, age guidelines and how to apply', href: '/admission/information', cta: 'Apply Now', icon: 'graduation' },
+  { title: 'Notice Board', text: 'Latest notices and announcements', href: '/notices', cta: 'View Notices', icon: 'book-open' },
+  { title: 'Academic Calendar', text: 'Exams, events and holidays of the year', href: '/campus/academic-calendar', cta: 'View Calendar', icon: 'chalkboard' },
+  { title: 'Rules & Regulations', text: 'Attendance, uniform, conduct and fees', href: '/admission/rules-and-regulations', cta: 'Read Rules', icon: 'user-tie' },
 ];

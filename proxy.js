@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { safeRedirect } from '@/lib/redirect';
+import { canOpen, isStaff } from '@/config/roles';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 const ALLOWED_ORIGINS = [SITE_URL, 'http://localhost:3000', 'http://localhost:3001'];
@@ -53,13 +54,14 @@ export function proxy(request) {
   const token = request.cookies.get('token')?.value;
   const session = readSession(token);
 
-  // 2. /dashboard → admins only
-  if (pathname.startsWith('/dashboard') && (!session || session.role !== 'admin')) {
-    return redirectToLogin(request, pathname, Boolean(token));
+  // 2. /dashboard → admins and editors; admin-only pages send editors to the overview
+  if (pathname.startsWith('/dashboard')) {
+    if (!session || !isStaff(session.role)) return redirectToLogin(request, pathname, Boolean(token));
+    if (!canOpen(session.role, pathname)) return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // 3. Signed-in admins skip the login page
-  if (pathname === '/login' && session?.role === 'admin') {
+  // 3. Signed-in staff skip the login page
+  if (pathname === '/login' && isStaff(session?.role)) {
     const target = safeRedirect(request.nextUrl.searchParams.get('from'), session.role, '/dashboard');
     return NextResponse.redirect(new URL(target, request.url));
   }

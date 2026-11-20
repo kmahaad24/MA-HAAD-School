@@ -2,28 +2,29 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  FaFacebookF, FaLinkedinIn, FaYoutube, FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaClock,
-  FaChevronRight, FaArrowUp, FaExternalLinkAlt,
-} from 'react-icons/fa';
-import { siteConfig, telHref } from '@/config/site';
-import { footerNav, legalNav } from '@/config/navigation';
+  FaFacebookF, FaLinkedinIn, FaYoutube, FaInstagram, FaXTwitter, FaLocationDot, FaEnvelope, FaPhone, FaClock,
+  FaChevronRight, FaArrowUp, FaArrowUpRightFromSquare,
+} from 'react-icons/fa6';
+import { useSite } from '@/providers/SiteProvider';
 import { api } from '@/lib/api-client';
+import { telHref, isExternal } from '@/lib/utils';
 import Container from '@/components/ui/Container';
 import Logo from './Logo';
 import AppBadges from './AppBadges';
 
-const SOCIAL_ICONS = { facebook: FaFacebookF, youtube: FaYoutube, linkedin: FaLinkedinIn };
+const SOCIAL_ICONS = { facebook: FaFacebookF, youtube: FaYoutube, instagram: FaInstagram, linkedin: FaLinkedinIn, x: FaXTwitter };
 
-function FooterLinks({ title, links }) {
+function FooterLinks({ title, links = [] }) {
+  if (!links.length) return null;
   return (
     <nav aria-label={title}>
       <h3 className="font-display text-lg text-white">{title}</h3>
       <span className="mt-2 block h-0.5 w-10 rounded-full bg-gold-400" aria-hidden />
       <ul className="mt-5 space-y-1 text-sm">
         {links.map((link) => {
-          const external = link.href.startsWith('http');
+          const external = isExternal(link.href);
           return (
-            <li key={link.href}>
+            <li key={`${link.href}-${link.label}`}>
               <Link
                 href={link.href}
                 {...(external && { target: '_blank', rel: 'noopener noreferrer' })}
@@ -32,7 +33,7 @@ function FooterLinks({ title, links }) {
                 <FaChevronRight className="mt-1.5 shrink-0 text-[9px] text-gold-400 transition-transform group-hover:translate-x-0.5" aria-hidden />
                 <span>
                   {link.label}
-                  {external && <FaExternalLinkAlt className="ml-1.5 inline text-[9px] opacity-50" aria-label="(opens in a new tab)" />}
+                  {external && <FaArrowUpRightFromSquare className="ml-1.5 inline text-[9px] opacity-50" aria-label="(opens in a new tab)" />}
                 </span>
               </Link>
             </li>
@@ -67,7 +68,7 @@ function BackToTop() {
     <button
       type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      className="fixed bottom-5 right-5 z-40 flex h-12 w-12 animate-fade-in items-center justify-center rounded-full bg-gold-400 text-navy-950 shadow-lg shadow-navy-950/30 transition hover:bg-gold-300"
+      className="fixed bottom-5 right-5 z-40 flex h-12 w-12 animate-fade-in items-center justify-center rounded-full bg-gold-400 text-navy-950 shadow-lg shadow-navy-950/30 transition hover:-translate-y-0.5 hover:bg-gold-300"
       aria-label="Back to top"
     >
       <FaArrowUp aria-hidden />
@@ -75,15 +76,27 @@ function BackToTop() {
   );
 }
 
-export default function Footer() {
+// Visitor counters load after the page is idle, so they never compete with the page itself on slow internet
+function useVisitorSummary() {
   const [visitors, setVisitors] = useState(null);
-
   useEffect(() => {
-    api.get('/visitor/summary').then((res) => setVisitors(res.data?.stats)).catch(() => {});
+    const load = () => api.get('/visitor/summary').then((res) => setVisitors(res.data?.stats)).catch(() => {});
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(load, { timeout: 4000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = setTimeout(load, 1500);
+    return () => clearTimeout(id);
   }, []);
+  return visitors;
+}
 
-  const { contact } = siteConfig;
-  const socials = Object.entries(siteConfig.social).filter(([key, url]) => url && SOCIAL_ICONS[key]);
+export default function Footer() {
+  const visitors = useVisitorSummary();
+  const { general, navigation } = useSite();
+  const { contact, identity, social } = general;
+  const titles = navigation.footerTitles || {};
+  const socials = Object.entries(social || {}).filter(([key, url]) => url && SOCIAL_ICONS[key]);
 
   return (
     <footer className="relative overflow-hidden bg-navy-950 text-white/80">
@@ -92,23 +105,33 @@ export default function Footer() {
       <Container className="relative grid gap-x-10 gap-y-12 py-14 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] lg:py-16">
         <div>
           <Logo size="h-12" variant="card" />
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/70">{siteConfig.about}</p>
+          {identity.about && <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/70">{identity.about}</p>}
 
           <div className="mt-6 space-y-3 text-sm">
-            <ContactRow icon={FaMapMarkerAlt}>
-              <a href={contact.mapUrl} target="_blank" rel="noopener noreferrer" className="hover:text-gold-300">{contact.address}</a>
-            </ContactRow>
-            <ContactRow icon={FaPhoneAlt}>
-              <div className="flex flex-wrap gap-x-4 gap-y-1">
-                {contact.phones.map((phone) => (
-                  <a key={phone} href={telHref(phone)} className="whitespace-nowrap hover:text-gold-300">{phone}</a>
-                ))}
-              </div>
-            </ContactRow>
-            <ContactRow icon={FaClock}>Calling Time: {contact.callingTime}</ContactRow>
-            <ContactRow icon={FaEnvelope}>
-              <a href={`mailto:${contact.email}`} className="break-all hover:text-gold-300">{contact.email}</a>
-            </ContactRow>
+            {contact.address && (
+              <ContactRow icon={FaLocationDot}>
+                {contact.mapUrl ? (
+                  <a href={contact.mapUrl} target="_blank" rel="noopener noreferrer" className="hover:text-gold-300">{contact.address}</a>
+                ) : (
+                  contact.address
+                )}
+              </ContactRow>
+            )}
+            {contact.phones.length > 0 && (
+              <ContactRow icon={FaPhone}>
+                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                  {contact.phones.map((phone) => (
+                    <a key={phone} href={telHref(phone)} className="whitespace-nowrap hover:text-gold-300">{phone}</a>
+                  ))}
+                </div>
+              </ContactRow>
+            )}
+            {contact.callingTime && <ContactRow icon={FaClock}>Calling Time: {contact.callingTime}</ContactRow>}
+            {contact.email && (
+              <ContactRow icon={FaEnvelope}>
+                <a href={`mailto:${contact.email}`} className="break-all hover:text-gold-300">{contact.email}</a>
+              </ContactRow>
+            )}
           </div>
 
           {socials.length > 0 && (
@@ -133,19 +156,19 @@ export default function Footer() {
         </div>
 
         <div>
-          <FooterLinks title="Quick Links" links={footerNav.quick} />
+          <FooterLinks title={titles.quick || 'Quick Links'} links={navigation.footerQuick} />
           <AppBadges className="mt-8 flex-col items-start" />
         </div>
-        <FooterLinks title="Admission" links={footerNav.admission} />
-        <FooterLinks title="Useful Links" links={footerNav.useful} />
+        <FooterLinks title={titles.admission || 'Admission'} links={navigation.footerAdmission} />
+        <FooterLinks title={titles.useful || 'Useful Links'} links={navigation.footerUseful} />
       </Container>
 
       <div className="relative border-t border-white/10">
         <Container className="flex flex-col items-center gap-4 py-6 text-center text-xs text-white/60 lg:flex-row lg:justify-between lg:text-left">
-          <p>© {new Date().getFullYear()} {siteConfig.name}. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {identity.name}. All rights reserved.</p>
           <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1">
-            {legalNav.map((link) => (
-              <li key={link.href}>
+            {navigation.legal.map((link) => (
+              <li key={`${link.href}-${link.label}`}>
                 <Link href={link.href} className="hover:text-gold-300">{link.label}</Link>
               </li>
             ))}

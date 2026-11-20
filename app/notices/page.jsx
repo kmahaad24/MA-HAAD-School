@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { FaSearch, FaPaperclip, FaChevronLeft, FaChevronRight, FaBullhorn, FaEye } from 'react-icons/fa';
-import { siteConfig } from '@/config/site';
-import { images } from '@/data/school';
+import { getContents } from '@/server/services/site-content.service';
+import { pageMetadata } from '@/lib/seo';
 import { listPublished } from '@/server/services/notice.service';
 import { NOTICE_CATEGORY_OPTIONS, isNew } from '@/lib/notices';
 import { cn, formatDate } from '@/lib/utils';
@@ -9,10 +9,10 @@ import PageBanner from '@/components/school/PageBanner';
 import Container from '@/components/ui/Container';
 import { CategoryBadge, DateBlock, NoticeImage } from '@/components/school/NoticeCard';
 
-export const metadata = {
-  title: 'Notice Board',
-  description: `Notices and announcements from ${siteConfig.name}.`,
-};
+export async function generateMetadata() {
+  const { notices, general } = await getContents('notices', 'general');
+  return pageMetadata({ title: notices.banner.title, description: `${notices.banner.subtitle} — ${general.identity.name}`, path: '/notices', image: notices.banner.image });
+}
 
 const PAGE_SIZE = 12;
 
@@ -38,10 +38,11 @@ export default async function NoticesPage({ searchParams }) {
   };
   const { items, total, page, pages, failed } = await read({ ...filters, page: Number(sp.page) || 1 });
   const offset = (page - 1) * PAGE_SIZE;
+  const { notices: content, general } = await getContents('notices', 'general');
 
   return (
     <>
-      <PageBanner title="Notices & Announcements" subtitle="Important updates and circulars from the school administration." breadcrumbs={[{ label: 'Notice Board' }]} image={images.openingCeremony} />
+      <PageBanner banner={content.banner} breadcrumbs={[{ label: 'Notice Board' }]} />
 
       <section className="py-12 md:py-16">
         <Container className="max-w-6xl">
@@ -77,7 +78,7 @@ export default async function NoticesPage({ searchParams }) {
                 {failed ? 'Notices could not be loaded right now' : filters.search || filters.category ? 'No notices match your search' : 'No notices have been published yet'}
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                {failed ? 'Please try again in a little while.' : `For information, call ${siteConfig.contact.phones.join(' / ')}.`}
+                {failed ? 'Please try again in a little while.' : `For information, call ${general.contact.phones.join(' / ')}.`}
               </p>
               {(filters.search || filters.category) && (
                 <Link href="/notices" className="mt-5 rounded-full border border-brand-300 bg-white px-5 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50">Show all notices</Link>

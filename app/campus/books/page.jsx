@@ -1,8 +1,8 @@
 import { FaBook } from 'react-icons/fa';
-import { siteConfig } from '@/config/site';
-import { sectionLinks } from '@/config/navigation';
 import { currentSession } from '@/server/services/content.service';
-import { images } from '@/data/school';
+import { getContents } from '@/server/services/site-content.service';
+import { pageMetadata } from '@/lib/seo';
+import RichText from '@/components/ui/RichText';
 import PageBanner from '@/components/school/PageBanner';
 import SubpageLayout from '@/components/school/SubpageLayout';
 import { Kicker } from '@/components/school/SectionHeading';
@@ -10,17 +10,17 @@ import PrintButton from '@/components/school/PrintButton';
 import { cn } from '@/lib/utils';
 
 export async function generateMetadata() {
-  const { year } = await currentSession();
-  return { title: 'Books', description: `Class-wise book list for session ${year} at ${siteConfig.name}.` };
+  const [{ year }, { general, campus }] = await Promise.all([currentSession(), getContents('general', 'campus')]);
+  return pageMetadata({ title: 'Books', description: `Class-wise book list for session ${year} at ${general.identity.name}.`, path: '/campus/books', image: campus.books.image });
 }
 
 // The book list is part of the session in Dashboard → Academic Sessions
 export default async function BooksPage() {
-  const { year: booksSession, books: bookLevels } = await currentSession();
+  const [{ year: booksSession, books: bookLevels }, { campus }] = await Promise.all([currentSession(), getContents('campus')]);
   return (
     <>
-      <PageBanner title="Books" subtitle={`Book list · Session ${booksSession}`} breadcrumbs={[{ label: 'Campus', href: '/campus' }, { label: 'Books' }]} image={images.bookFestival} />
-      <SubpageLayout title="Campus" links={sectionLinks('/campus')} current="/campus/books">
+      <PageBanner title="Books" subtitle={`Book list · Session ${booksSession}`} breadcrumbs={[{ label: campus.banner.title, href: '/campus' }, { label: 'Books' }]} image={campus.books.image} />
+      <SubpageLayout section="/campus" current="/campus/books">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <Kicker>Session {booksSession}</Kicker>
@@ -28,10 +28,7 @@ export default async function BooksPage() {
           </div>
           <PrintButton label="Print book list" />
         </div>
-        <p className="prose-school mt-4">
-          From Class I, students follow the <strong>NCTB textbooks (English Version)</strong>, which are provided free of cost by the Government of Bangladesh.
-          Books marked <strong>School</strong> are selected by MA HAAD and are available through the school office.
-        </p>
+        <RichText value={campus.books.intro} className="prose-school mt-4" />
         <ul className="mt-4 flex flex-wrap gap-4 text-sm">
           <li className="flex items-center gap-2"><span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-bold text-brand-700">NCTB</span> Government textbook</li>
           <li className="flex items-center gap-2"><span className="rounded-full bg-gold-100 px-2.5 py-0.5 text-xs font-bold text-gold-700">School</span> Selected by MA HAAD</li>

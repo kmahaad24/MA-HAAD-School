@@ -14,7 +14,7 @@ const csp = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "connect-src 'self' https://*.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://stats.g.doubleclick.net",
-  'frame-src https://www.google.com https://maps.google.com https://www.googletagmanager.com',
+  'frame-src https://www.google.com https://maps.google.com https://www.googletagmanager.com https://www.youtube-nocookie.com https://www.youtube.com',
   "frame-ancestors 'self'",
   "object-src 'none'",
   "base-uri 'self'",
@@ -30,6 +30,9 @@ const nextConfig = {
   // Pin the project root so Next doesn't pick up a lockfile from a parent folder
   turbopack: { root: projectRoot },
   outputFileTracingRoot: projectRoot,
+  // Titles, descriptions and link-preview tags go in <head> for every visitor (not only known search bots), so
+  // WhatsApp / Facebook previews and SEO checkers always see them. Metadata is read from cache, so this costs nothing.
+  htmlLimitedBots: /.*/,
   // Excel / PDF exports: these libraries read their own data files from node_modules, so they are loaded
   // from there instead of being bundled; the PDF fonts are shipped with the export route.
   serverExternalPackages: ['pdfkit', 'exceljs'],

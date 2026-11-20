@@ -1,5 +1,5 @@
 import { FaImages } from 'react-icons/fa';
-import { listGallery } from '@/server/services/content.service';
+import { listGalleryPublic } from '@/server/services/content.service';
 import { getContent } from '@/server/services/site-content.service';
 import { pageMetadata } from '@/lib/seo';
 import PageBanner from '@/components/school/PageBanner';
@@ -13,7 +13,7 @@ export async function generateMetadata() {
 
 // Photos are managed in Dashboard → Photo Gallery; the text in Website Content → Photo gallery page
 export default async function GalleryPage() {
-  const [photos, page] = await Promise.all([listGallery().catch(() => []), getContent('gallery')]);
+  const [photos, page] = await Promise.all([listGalleryPublic().catch(() => []), getContent('gallery')]);
   const categories = ['All', ...new Set(photos.map((p) => p.category).filter(Boolean))];
 
   return (

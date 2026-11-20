@@ -9,7 +9,7 @@ function Month({ year, month, dayMap, weekend, compact }) {
   return (
     <div className={cn('rounded-2xl border border-slate-200 bg-white', compact ? 'break-inside-avoid rounded-lg p-2' : 'p-4 shadow-sm')}>
       <p className={cn('font-display text-navy-900', compact ? 'mb-1 text-[11pt] font-bold' : 'mb-3 text-lg')}>
-        {MONTHS[month]} <span className="text-gold-600">’{String(year).slice(2)}</span>
+        {MONTHS[month]} <span className="text-gold-700">’{String(year).slice(2)}</span>
       </p>
       <div className={cn('grid grid-cols-7 text-center', compact ? 'gap-px text-[8pt]' : 'gap-1 text-xs')}>
         {DAY_LETTERS.map((d, i) => (
@@ -22,15 +22,7 @@ function Month({ year, month, dayMap, weekend, compact }) {
           const type = typeOfDay(entries);
           const isWeekend = weekend.includes(i % 7);
           return (
-            <span
-              key={date}
-              title={entries.map((e) => e.title).join(' · ') || undefined}
-              className={cn(
-                'flex items-center justify-center font-medium',
-                compact ? 'h-[5.2mm] rounded-sm' : 'aspect-square rounded-md',
-                type ? EVENT_TYPES[type].cell : isWeekend ? 'bg-emerald-50 text-emerald-700' : 'text-slate-700'
-              )}
-            >
+            <span key={date} className="cal-day" data-t={type || (isWeekend ? 'w' : undefined)} title={entries.length ? entries.map((e) => e.title).join(' · ') : undefined}>
               {day}
             </span>
           );
@@ -59,7 +51,7 @@ export function Legend({ weekendLabel, className }) {
 export default function YearCalendar({ year, entries, weekend, compact = false }) {
   const dayMap = buildDayMap(entries);
   return (
-    <div className={cn('grid', compact ? 'grid-cols-3 gap-2' : 'gap-4 sm:grid-cols-2 xl:grid-cols-3')}>
+    <div className={cn('grid', compact ? 'cal-compact grid-cols-3 gap-2' : 'gap-4 sm:grid-cols-2 xl:grid-cols-3')}>
       {Array.from({ length: 12 }, (_, m) => (
         <Month key={m} year={year} month={m} dayMap={dayMap} weekend={weekend} compact={compact} />
       ))}

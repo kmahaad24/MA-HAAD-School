@@ -10,6 +10,7 @@ import Logo from '@/components/layout/Logo';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import Sidebar from './Sidebar';
 import DashboardSearch from './DashboardSearch';
+import PageTutorial from './PageTutorial';
 import { isStaff } from '@/config/roles';
 
 export default function DashboardShell({ children }) {
@@ -57,6 +58,7 @@ export default function DashboardShell({ children }) {
             </div>
             <DashboardSearch className="ml-auto lg:ml-0 lg:max-w-xl lg:flex-1" />
             <div className="ml-auto flex items-center gap-1 sm:gap-2">
+              <PageTutorial />
               <a
                 href="/"
                 target="_blank"

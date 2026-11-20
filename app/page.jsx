@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { FaArrowRight, FaBullhorn } from 'react-icons/fa';
 import { getContents } from '@/server/services/site-content.service';
-import { listGallery } from '@/server/services/content.service';
+import { listGalleryPublic } from '@/server/services/content.service';
 import { latest } from '@/server/services/notice.service';
 import { pageMetadata } from '@/lib/seo';
 import Container from '@/components/ui/Container';
@@ -28,8 +28,7 @@ function QuickLinks({ items }) {
           <Link
             key={`${href}-${title}`}
             href={href}
-            style={delay(i)}
-            className="group flex animate-fade-up flex-col items-center rounded-2xl border-b-4 border-navy-900 bg-white p-4 text-center shadow-xl shadow-navy-900/10 transition hover:-translate-y-1 hover:border-gold-400 sm:p-6 [animation-delay:var(--reveal-delay)]"
+            className="group flex flex-col items-center rounded-2xl border-b-4 border-navy-900 bg-white p-4 text-center shadow-xl shadow-navy-900/10 transition hover:-translate-y-1 hover:border-gold-400 sm:p-6"
           >
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-xl text-brand-600 transition group-hover:bg-brand-600 group-hover:text-white sm:h-14 sm:w-14">
               <Icon name={icon} />
@@ -37,7 +36,7 @@ function QuickLinks({ items }) {
             <span className="mt-3 font-display text-base font-bold text-navy-900 sm:text-lg">{title}</span>
             {text && <span className="mt-1 hidden text-sm text-slate-500 sm:block">{text}</span>}
             {cta && (
-              <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-gold-600 sm:text-sm">
+              <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-gold-700 sm:text-sm">
                 {cta} <FaArrowRight className="transition-transform group-hover:translate-x-1" aria-hidden />
               </span>
             )}
@@ -73,7 +72,7 @@ function Welcome({ block, about }) {
         <div data-reveal="">
           {block.kicker && <Kicker>{block.kicker}</Kicker>}
           <h2 className="mt-4 font-display text-3xl leading-tight text-navy-900 md:text-4xl">{welcome.title}</h2>
-          {welcome.tagline && <p className="mt-2 font-display text-lg italic text-gold-600">{welcome.tagline}</p>}
+          {welcome.tagline && <p className="mt-2 font-display text-lg italic text-gold-700">{welcome.tagline}</p>}
           <div className="mt-5 space-y-4 text-[15px] leading-relaxed text-slate-600">
             {welcome.paragraphs[0] && <p className="font-medium text-navy-900">{welcome.paragraphs[0]}</p>}
             {welcome.paragraphs[1] && <p>{welcome.paragraphs[1]}</p>}
@@ -82,7 +81,7 @@ function Welcome({ block, about }) {
             <ul className="mt-6 grid gap-3 sm:grid-cols-2">
               {highlights.map(({ icon, label }) => (
                 <li key={label} className="flex items-center gap-3 text-sm font-semibold text-navy-900">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold-100 text-gold-600"><Icon name={icon} /></span>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold-100 text-gold-700"><Icon name={icon} /></span>
                   {label}
                 </li>
               ))}
@@ -90,7 +89,9 @@ function Welcome({ block, about }) {
           )}
           {block.buttonLabel && (
             <PillButton href="/about" className="mt-8">
-              {block.buttonLabel} <FaArrowRight aria-hidden />
+              {block.buttonLabel}
+              <span className="sr-only"> about {welcome.title}</span>
+              <FaArrowRight aria-hidden />
             </PillButton>
           )}
         </div>
@@ -160,7 +161,7 @@ function GalleryPreview({ heading, photos }) {
 }
 
 export default async function HomePage() {
-  const [notices, photos, content] = await Promise.all([safe(latest(3), []), safe(listGallery(), []), getContents('home', 'about', 'admission', 'facilities', 'general')]);
+  const [notices, photos, content] = await Promise.all([safe(latest(3), []), safe(listGalleryPublic(6), []), getContents('home', 'about', 'admission', 'facilities', 'general')]);
   const { home, about, admission, facilities, general } = content;
 
   return (

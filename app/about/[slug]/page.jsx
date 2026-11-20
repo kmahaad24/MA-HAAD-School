@@ -44,7 +44,7 @@ export default async function MessagePage({ params }) {
 
       <section className="bg-slate-50 py-12 md:py-16">
         <Container className="max-w-5xl">
-          <div className="grid animate-fade-up gap-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 md:grid-cols-[240px_1fr] md:gap-10 md:p-10">
+          <div className="grid gap-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 md:grid-cols-[240px_1fr] md:gap-10 md:p-10">
             {/* Photo and name */}
             <aside className="mx-auto w-full max-w-[240px] md:sticky md:top-20 md:self-start">
               <PersonPhoto photo={message.photo} name={displayName} className="aspect-[5/6] rounded-xl border border-slate-200" sizes="240px" />

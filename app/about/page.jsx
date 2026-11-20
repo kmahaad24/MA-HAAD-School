@@ -21,7 +21,7 @@ export default async function AboutPage() {
 
       <SubpageLayout section="/about" current="/about">
         <BodyHeading kicker={welcome.kicker} title={welcome.title} className="[&_h2]:md:text-4xl" />
-        {welcome.tagline && <p className="mt-2 font-display text-lg italic text-gold-600">{welcome.tagline}</p>}
+        {welcome.tagline && <p className="mt-2 font-display text-lg italic text-gold-700">{welcome.tagline}</p>}
 
         {welcome.image && (
           <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-3xl bg-slate-100 shadow-xl shadow-navy-900/10">

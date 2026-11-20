@@ -87,6 +87,9 @@ export default function HeroSlider({ slides = [], buttons = {} }) {
                 sizes="100vw"
                 quality={i === 0 ? 75 : 60}
                 preload={i === 0}
+                // The first photo is the biggest thing on the screen: fetch it before anything else
+                fetchPriority={i === 0 ? 'high' : 'low'}
+                loading={i === 0 ? 'eager' : 'lazy'}
                 placeholder={SHIMMER}
                 className={cn('object-cover', slide.position || 'object-center')}
               />
@@ -152,16 +155,19 @@ export default function HeroSlider({ slides = [], buttons = {} }) {
           >
             <FaChevronRight aria-hidden />
           </button>
-          <div className="container absolute inset-x-0 bottom-24 z-20 flex max-w-7xl gap-2 sm:bottom-28 2xl:max-w-screen-2xl">
+          <div className="container absolute inset-x-0 bottom-[5.5rem] z-20 flex max-w-7xl gap-0.5 sm:bottom-[6.5rem] 2xl:max-w-screen-2xl">
             {slides.map((slide, i) => (
+              // 24 px tap area around each small dot (easy to tap on phones)
               <button
                 key={`${i}-${slide.image}`}
                 type="button"
                 onClick={() => go(i)}
-                className={cn('h-2.5 rounded-full transition-all', i === index ? 'w-8 bg-gold-400' : 'w-2.5 bg-white/60 hover:bg-white')}
+                className="group flex h-6 min-w-6 items-center justify-center px-1"
                 aria-label={`Go to slide ${i + 1}`}
                 aria-current={i === index ? 'true' : undefined}
-              />
+              >
+                <span className={cn('block h-2.5 rounded-full transition-all', i === index ? 'w-8 bg-gold-400' : 'w-2.5 bg-white/60 group-hover:bg-white')} />
+              </button>
             ))}
           </div>
         </>

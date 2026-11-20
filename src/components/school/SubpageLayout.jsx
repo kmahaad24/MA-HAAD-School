@@ -43,7 +43,7 @@ export default async function SubpageLayout({ section, title, current, children,
   const heading = title || navigation.main.find((i) => i.href === section)?.label || '';
   return (
     <Container className="grid gap-10 py-12 md:py-16 lg:grid-cols-[minmax(0,1fr)_300px] xl:gap-14">
-      <div className="min-w-0 animate-fade-up">{children}</div>
+      <div className="min-w-0">{children}</div>
 
       <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">
         {links.length > 0 && (

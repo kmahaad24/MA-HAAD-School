@@ -14,9 +14,9 @@ export default async function PageBanner({ banner, title = banner?.title, subtit
   const photo = image || (await getContent('shared')).defaultBanner;
   return (
     <section className="relative isolate overflow-hidden bg-navy-900">
-      <SmartImage src={photo} alt="" fill sizes="100vw" quality={60} className="-z-20 object-cover object-center opacity-40" preload />
+      <SmartImage src={photo} alt="" fill sizes="100vw" quality={60} className="-z-20 object-cover object-center opacity-40" preload fetchPriority="high" />
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-navy-950/95 via-navy-900/85 to-brand-800/60" aria-hidden />
-      <Container className="animate-fade-up py-12 md:py-16 lg:py-20">
+      <Container className="py-12 md:py-16 lg:py-20">
         <h1 className="max-w-3xl text-balance font-display text-3xl text-white md:text-4xl lg:text-5xl">{title}</h1>
         {subtitle && <p className="mt-3 max-w-2xl text-sm text-white/75 md:text-base">{subtitle}</p>}
         <nav aria-label="Breadcrumb" className="mt-5">

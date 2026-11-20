@@ -22,12 +22,12 @@ export async function generateMetadata() {
 
 function InfoCard({ icon: Icon, title, index, children }) {
   return (
-    <div data-reveal="" style={delay(index)} className="flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-navy-900 to-brand-600 text-xl text-white shadow-lg">
+    <div data-reveal="" style={delay(index)} className="flex min-w-0 flex-col items-center rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-xl sm:p-6">
+      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-navy-900 to-brand-600 text-lg text-white shadow-lg sm:h-14 sm:w-14 sm:text-xl">
         <Icon aria-hidden />
       </span>
-      <p className="mt-4 font-display text-lg text-navy-900">{title}</p>
-      <div className="mt-2 text-sm leading-relaxed text-slate-600">{children}</div>
+      <p className="mt-3 font-display text-base text-navy-900 sm:mt-4 sm:text-lg">{title}</p>
+      <div className="mt-1.5 break-words text-xs leading-relaxed text-slate-600 sm:mt-2 sm:text-sm">{children}</div>
     </div>
   );
 }
@@ -51,7 +51,7 @@ export default async function ContactPage() {
       <PageBanner banner={page.banner} breadcrumbs={[{ label: page.banner.title }]} />
 
       <Section heading={page.heading}>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {cards.map((card, i) => (
             <InfoCard key={card.title} icon={card.icon} title={card.title} index={i}>{card.body}</InfoCard>
           ))}

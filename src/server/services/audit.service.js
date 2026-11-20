@@ -19,7 +19,7 @@ function requestContext(req) {
   }
   return {
     ip: getClientIp(req),
-    country: req.headers.get('x-vercel-ip-country') || '',
+    country: req.headers.get('x-vercel-ip-country') || req.headers.get('cf-ipcountry') || '',
     city,
     userAgent: ua.slice(0, 400),
     ...parseUserAgent(ua),

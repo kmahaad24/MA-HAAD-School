@@ -96,7 +96,7 @@ export function IconCard({ icon, title, text, href, variant = 'center', index = 
       </>
     ) : (
       <>
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold-100 text-xl text-gold-600 transition group-hover:bg-gold-400 group-hover:text-navy-950">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold-100 text-xl text-gold-700 transition group-hover:bg-gold-400 group-hover:text-navy-950">
           <Icon name={icon} />
         </span>
         <div>
@@ -146,7 +146,7 @@ export function ImageLinkCard({ href, image, badge, icon, title, text, cta = 'Le
             {tags.map((t) => <li key={t} className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700">{t}</li>)}
           </ul>
         )}
-        <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-600">
+        <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-700">
           {cta} <FaArrowRight className="transition-transform group-hover:translate-x-1" aria-hidden />
         </span>
       </div>

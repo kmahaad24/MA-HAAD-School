@@ -18,7 +18,7 @@ export default async function CampusPage() {
         <CardGrid cols={3} className="md:grid-cols-3">
           {cards.map((card, i) => (
             <IconCard key={card.href} index={i} {...card}>
-              <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-600">Open <FaArrowRight aria-hidden /></span>
+              <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-700">Open <FaArrowRight aria-hidden /></span>
             </IconCard>
           ))}
         </CardGrid>

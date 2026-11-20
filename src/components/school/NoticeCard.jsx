@@ -48,7 +48,7 @@ export default function NoticeCard({ notice }) {
           <div className="flex flex-wrap items-center gap-1.5">
             <CategoryBadge category={notice.category} />
             {isNew(notice.date) && <span className="rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold uppercase text-white">New</span>}
-            {notice.pinned && <FaThumbtack className="text-xs text-gold-600" aria-label="Pinned" />}
+            {notice.pinned && <FaThumbtack className="text-xs text-gold-700" aria-label="Pinned" />}
           </div>
           <h3 className="mt-2 line-clamp-2 text-base font-semibold leading-snug text-navy-900">
             <Link href={`/notices/${notice._id}`} className="after:absolute after:inset-0 group-hover:text-brand-700">
@@ -56,7 +56,7 @@ export default function NoticeCard({ notice }) {
             </Link>
           </h3>
           {notice.summary && <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-500">{notice.summary}</p>}
-          <div className="mt-auto flex items-center gap-3 pt-3 text-xs font-semibold text-gold-600">
+          <div className="mt-auto flex items-center gap-3 pt-3 text-xs font-semibold text-gold-700">
             Read More <FaArrowRight className="transition-transform group-hover:translate-x-1" aria-hidden />
             {notice.attachmentUrl && <FaPaperclip className="ml-auto text-slate-400" aria-label="Has attachment" />}
           </div>

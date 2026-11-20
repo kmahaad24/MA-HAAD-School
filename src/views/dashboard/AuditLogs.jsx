@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { isLocalIp } from '@/lib/visitor';
 import {
   FaSignInAlt, FaExclamationTriangle, FaUserCheck, FaDatabase, FaHistory, FaPlusCircle, FaTrashAlt, FaUsers,
   FaDesktop, FaMobileAlt, FaTabletAlt,
@@ -86,7 +87,7 @@ const whereColumn = {
     const Icon = DEVICE_ICONS[r.device] || FaDesktop;
     return (
       <div className="text-xs">
-        <p className="text-ink-2">{[r.city, r.country].filter(Boolean).join(', ') || 'Unknown location'} <span className="text-subtle">· {r.ip}</span></p>
+        <p className="text-ink-2">{[r.city, r.country].filter(Boolean).join(', ') || (isLocalIp(r.ip) ? 'This computer / local network' : 'Location not available')} <span className="text-subtle">· {r.ip}</span></p>
         <p className="mt-0.5 flex items-center gap-1.5 text-subtle"><Icon aria-hidden /> {r.browser} · {r.os}</p>
       </div>
     );

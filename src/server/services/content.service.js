@@ -42,6 +42,14 @@ export async function listGallery() {
   return toPlain(await GalleryPhoto.find().sort(GALLERY_SORT).lean());
 }
 
+// Public pages: just the fields the photo grid uses (smaller page for slow connections)
+export async function listGalleryPublic(limit = 0) {
+  await connectDB();
+  const query = GalleryPhoto.find().select('src title category').sort(GALLERY_SORT);
+  if (limit) query.limit(limit);
+  return toPlain(await query.lean());
+}
+
 function cleanPhoto(input, { partial = false } = {}) {
   const out = {};
   if (!partial || 'src' in input) {

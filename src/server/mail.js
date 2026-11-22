@@ -113,3 +113,22 @@ ${messageTable(m)}`;
     text,
   };
 }
+
+// Online admission application → the admin email(s) in Settings → Email
+export function admissionAdminEmail(a, { school, dashboardUrl }) {
+  const rows = [
+    ['Student', a.studentName],
+    ['Class', a.className],
+    ['Father', a.fatherName],
+    ['Mother', a.motherName],
+    ['Mobile', a.mobile],
+  ];
+  const subject = `New admission application: ${a.studentName} (${a.className})`;
+  const bodyHtml = `<p style="margin:0 0 16px;font-size:14px">A new online admission application was submitted on the website.</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+${rows.map(([k, v]) => `<tr><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;width:90px;color:#64748b">${k}</td><td style="padding:8px 0;border-bottom:1px solid #e2e8f0;color:#0f172a">${escapeHtml(v)}</td></tr>`).join('')}
+</table>
+<p style="margin:20px 0 0"><a href="${escapeHtml(dashboardUrl)}" style="display:inline-block;background:#126cb5;color:#ffffff;text-decoration:none;padding:10px 18px;border-radius:8px;font-size:14px">Open in dashboard</a></p>`;
+  const text = `New online admission application\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nDashboard: ${dashboardUrl}`;
+  return { subject, html: layout({ school, heading: 'New admission application', bodyHtml, footer: `Sent by the ${escapeHtml(school)} website.` }), text };
+}

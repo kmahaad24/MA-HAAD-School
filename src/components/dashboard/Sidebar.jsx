@@ -14,27 +14,33 @@ import Logo from '@/components/layout/Logo';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import UserAvatar from './UserAvatar';
 
-// Unread contact requests for the menu badge — refreshed on every page change
-function useUnreadCount(pathname) {
+// Count for a menu badge (unread contact requests, new admission applications) — refreshed on every page change
+function useCount(pathname, url, pick) {
   const [count, setCount] = useState(0);
   useEffect(() => {
     let active = true;
     apiSecure
-      .get('/contact?status=unread&limit=1')
-      .then((res) => active && setCount(res.data.data?.counts?.unread || 0))
+      .get(url)
+      .then((res) => active && setCount(pick(res.data.data) || 0))
       .catch(() => {});
     return () => {
       active = false;
     };
-  }, [pathname]);
+  }, [pathname, url, pick]);
   return count;
 }
+
+const pickUnread = (d) => d?.counts?.unread;
+const pickNew = (d) => d?.counts?.new;
 
 export default function Sidebar({ onClose }) {
   const pathname = usePathname();
   const router = useRouter();
   const { logOut, user } = useAuth();
-  const badges = { unreadMessages: useUnreadCount(pathname) };
+  const badges = {
+    unreadMessages: useCount(pathname, '/contact?status=unread&limit=1', pickUnread),
+    newApplications: useCount(pathname, '/admissions?status=new&limit=1', pickNew),
+  };
 
   const handleLogout = async () => {
     await logOut().catch(() => {});

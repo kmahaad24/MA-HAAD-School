@@ -4,6 +4,7 @@ import { getContents } from '@/server/services/site-content.service';
 import { sectionLinks } from '@/config/navigation';
 import { pageMetadata } from '@/lib/seo';
 import PageBanner from '@/components/school/PageBanner';
+import Container from '@/components/ui/Container';
 import { AdmissionCta, CardGrid, ImageLinkCard, Section, delay } from '@/components/school/Blocks';
 
 export async function generateMetadata() {
@@ -18,6 +19,18 @@ export default async function AdmissionPage() {
   return (
     <>
       <PageBanner banner={admission.banner} breadcrumbs={[{ label: admission.banner.title }]} />
+
+      <section className="bg-gold-400/10">
+        <Container className="flex flex-col items-start gap-4 py-8 sm:flex-row sm:items-center sm:justify-between" data-reveal="">
+          <div>
+            <h2 className="font-display text-2xl text-navy-900">Apply online</h2>
+            <p className="mt-1 text-slate-600">Submit the admission form from home — the school office will call you.</p>
+          </div>
+          <Link href="/admission/apply" className="inline-flex items-center gap-2 rounded-full bg-navy-900 px-6 py-3 font-semibold text-white transition hover:bg-brand-700">
+            Online Admission <FaArrowRight className="text-gold-400" aria-hidden />
+          </Link>
+        </Container>
+      </section>
 
       <Section heading={admission.heading}>
         <CardGrid cols={3} className="md:grid-cols-3">

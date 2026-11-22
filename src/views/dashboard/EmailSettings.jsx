@@ -36,6 +36,7 @@ const toForm = (s) => ({
   fromName: s?.fromName || '',
   adminEmails: (s?.adminEmails || []).join(', '),
   notifyAdmin: s?.notifyAdmin !== false,
+  notifyAdmission: s?.notifyAdmission !== false,
   sendConfirmation: s?.sendConfirmation !== false,
 });
 
@@ -101,7 +102,7 @@ function EmailForm({ settings, onSaved }) {
         checked={form.enabled}
         onChange={(enabled) => setForm((f) => ({ ...f, enabled }))}
         title="Send emails"
-        description="When off, contact messages are still saved in Contact Requests but no email is sent."
+        description="When off, contact messages and admission applications are still saved in the dashboard but no email is sent."
       />
 
       <fieldset disabled={!form.enabled} className={cn('space-y-5 transition', !form.enabled && 'opacity-50')}>
@@ -164,15 +165,16 @@ function EmailForm({ settings, onSaved }) {
             <Input label="Sender name" name="mail-from-name" value={form.fromName} onChange={set('fromName')} placeholder="MA HAAD School & College" maxLength={120} />
           </div>
           <div className="mt-4">
-            <label htmlFor="mail-admins" className="mb-1 block text-sm font-medium text-body">Contact messages go to</label>
+            <label htmlFor="mail-admins" className="mb-1 block text-sm font-medium text-body">Admin email (alerts for contact messages and admission applications)</label>
             <input id="mail-admins" value={form.adminEmails} onChange={set('adminEmails')} placeholder="office@your-domain.com, principal@your-domain.com" className={field} />
             <p className="mt-1 text-xs text-subtle">One or more addresses, separated by commas (up to 10).</p>
           </div>
         </div>
 
         {/* What is sent */}
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Switch checked={form.notifyAdmin} onChange={(v) => setForm((f) => ({ ...f, notifyAdmin: v }))} title="Email the school" description="Each new contact message is emailed to the addresses above." />
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Switch checked={form.notifyAdmin} onChange={(v) => setForm((f) => ({ ...f, notifyAdmin: v }))} title="Contact message alert" description="Each new contact message is emailed to the admin email." />
+          <Switch checked={form.notifyAdmission} onChange={(v) => setForm((f) => ({ ...f, notifyAdmission: v }))} title="Admission alert" description="Each new online admission application is emailed to the admin email." />
           <Switch checked={form.sendConfirmation} onChange={(v) => setForm((f) => ({ ...f, sendConfirmation: v }))} title="Confirmation to the sender" description="The person gets a thank-you email (text in Page Content → Contact page)." />
         </div>
       </fieldset>
@@ -215,7 +217,7 @@ export default function EmailSettings() {
           <span className="rounded-lg bg-primary-50 p-2.5 text-primary-600 dark:bg-primary-500/15 dark:text-primary-300"><FaEnvelope /></span>
           <div>
             <h2 className="text-base">Email</h2>
-            <p className="mt-0.5 text-sm text-subtle">Contact-form messages are emailed to the school, and the sender gets a confirmation.</p>
+            <p className="mt-0.5 text-sm text-subtle">Contact messages and admission applications are emailed to the admin email, and contact senders get a confirmation.</p>
           </div>
         </div>
         {data && (

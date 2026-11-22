@@ -11,7 +11,7 @@ import { describeChange, recordActivity } from '@/server/services/audit.service'
 
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 // Logged elsewhere (sign-in in auth.controller) or not user actions
-const NOT_TRACKED = /^\/api\/(auth\/sign-in|visitor\/|contact$)/;
+const NOT_TRACKED = /^\/api\/(auth\/sign-in|visitor\/|contact$|admissions$)/;
 
 // Every successful change by a signed-in user is written to the activity log (Dashboard → User Activity)
 async function trackChange(req, session, response) {

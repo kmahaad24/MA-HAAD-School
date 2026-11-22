@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { FaUsers, FaCalendarDay, FaEnvelope, FaEnvelopeOpen, FaUserShield, FaGlobe, FaSignInAlt, FaEdit, FaBullhorn, FaCog } from 'react-icons/fa';
+import { FaUsers, FaEnvelope, FaEnvelopeOpen, FaUserShield, FaGlobe, FaSignInAlt, FaEdit, FaBullhorn, FaCog, FaUserGraduate } from 'react-icons/fa';
 import useApi from '@/hooks/useApi';
 import useAuth from '@/hooks/useAuth';
 import { canOpen } from '@/config/roles';
@@ -14,6 +14,7 @@ import EmptyState from '@/components/ui/EmptyState';
 const QUICK_LINKS = [
   { href: '/dashboard/content', label: 'Edit website text, photos and menus', icon: FaEdit },
   { href: '/dashboard/notices', label: 'Publish a notice', icon: FaBullhorn },
+  { href: '/dashboard/applications', label: 'See admission applications', icon: FaUserGraduate },
   { href: '/dashboard/messages', label: 'Read contact requests', icon: FaEnvelope },
   { href: '/dashboard/traffic', label: 'See who is visiting the site', icon: FaGlobe },
   { href: '/dashboard/login-history', label: 'Check recent sign-ins', icon: FaSignInAlt },
@@ -31,9 +32,9 @@ export default function DashboardHome() {
       <PageTitle title={`Welcome, ${user?.name?.split(' ')[0] || 'admin'}`} description="Overview of your website." />
 
       <StatGrid>
-        <StatCard label="Total visitors" value={visitors.data?.total} icon={FaUsers} loading={visitors.loading} />
-        <StatCard label="Visitors today" value={visitors.data?.today} icon={FaCalendarDay} tone="green" loading={visitors.loading} />
+        <StatCard label="Total visitors" value={visitors.data?.total} hint={visitors.data ? `${visitors.data.today ?? 0} today` : undefined} icon={FaUsers} loading={visitors.loading} />
         <StatCard label="Contact requests" value={s?.messages} hint={s ? `${s.unreadMessages} unread` : undefined} icon={FaEnvelope} tone="amber" loading={stats.loading} />
+        <StatCard label="Admission applications" value={s?.applications} hint={s ? `${s.newApplications} new` : undefined} icon={FaUserGraduate} tone="green" loading={stats.loading} />
         <StatCard label="Dashboard users" value={s?.users} icon={FaUserShield} tone="red" loading={stats.loading} />
       </StatGrid>
 

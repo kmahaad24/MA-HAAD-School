@@ -1,5 +1,5 @@
 import { TbLayoutDashboard } from 'react-icons/tb';
-import { FaGlobe, FaCog, FaSignInAlt, FaHistory, FaBullhorn, FaImages, FaUsers, FaUserTie, FaCalendarAlt, FaEnvelope, FaEdit, FaSchool, FaBars, FaHome, FaGraduationCap, FaFlask, FaInfoCircle, FaUserCog, FaUserCircle } from 'react-icons/fa';
+import { FaGlobe, FaCog, FaSignInAlt, FaHistory, FaBullhorn, FaImages, FaUsers, FaUserTie, FaCalendarAlt, FaEnvelope, FaEdit, FaSchool, FaBars, FaHome, FaGraduationCap, FaFlask, FaInfoCircle, FaUserCog, FaUserCircle, FaUserGraduate } from 'react-icons/fa';
 
 // The public menus are website content (Dashboard → Website Content → Menus). Helpers below take that content.
 
@@ -29,6 +29,7 @@ export const dashboardNav = [
     title: 'Overview',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: TbLayoutDashboard },
+      { label: 'Admission Applications', href: '/dashboard/applications', icon: FaUserGraduate, badge: 'newApplications' },
       { label: 'Contact Requests', href: '/dashboard/messages', icon: FaEnvelope, badge: 'unreadMessages' },
       { label: 'Traffic Analytics', href: '/dashboard/traffic', icon: FaGlobe },
     ],

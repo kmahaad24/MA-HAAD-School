@@ -27,6 +27,7 @@ export default async function sitemap() {
   facilities.items.forEach((f) => add(`/facilities/${f.slug}`));
   admission.programs.forEach((p) => add(`/admission/${p.slug}`, { priority: 0.8 }));
   ['information', 'rules-and-regulations', 'transfer-procedure', 'prospectus'].forEach((s) => add(`/admission/${s}`));
+  add('/admission/apply', { priority: 0.8 });
   administration.groups.forEach((g) => add(`/administration/${g.slug}`, { priority: 0.5 }));
   legal.docs.forEach((d) => add(`/legal/${d.key}`, { priority: 0.3, changeFrequency: 'yearly' }));
   notices.forEach((n) => add(`/notices/${n._id}`, { priority: 0.6, changeFrequency: 'yearly', lastModified: new Date(n.updatedAt || n.date || now) }));

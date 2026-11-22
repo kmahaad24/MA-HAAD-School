@@ -73,6 +73,7 @@ const ENTITIES = [
   [/^\/api\/users/, 'User account'],
   [/^\/api\/profile/, 'Profile'],
   [/^\/api\/contact/, 'Contact message'],
+  [/^\/api\/admissions/, 'Admission application'],
   [/^\/api\/content/, 'Website content'],
   [/^\/api\/notices/, 'Notice'],
   [/^\/api\/gallery/, 'Gallery photo'],

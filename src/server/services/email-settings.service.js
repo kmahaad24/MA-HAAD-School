@@ -59,6 +59,7 @@ function fromEnv() {
     fromName: process.env.MAIL_FROM_NAME || '',
     adminEmails: list(process.env.ADMIN_EMAIL),
     notifyAdmin: true,
+    notifyAdmission: true,
     sendConfirmation: true,
   };
 }
@@ -117,6 +118,7 @@ export function cleanEmailSettings(input = {}, current = {}) {
     fromName: str(input.fromName, 120).replace(/[\r\n"]/g, ''),
     adminEmails,
     notifyAdmin: input.notifyAdmin !== false,
+    notifyAdmission: input.notifyAdmission !== false,
     sendConfirmation: input.sendConfirmation !== false,
   };
 }
